@@ -1,0 +1,149 @@
+<section class="hero" aria-labelledby="directory-title">
+  <div class="wrap">
+    <div class="eyebrow">THAKURGANJ BUSINESS DIRECTORY · अपने शहर की अपनी जानकारी</div>
+    <h1 id="directory-title">What are you looking for?</h1>
+    <p>
+      Find shops, food, doctors and services in Thakurganj.<br />दुकान, डॉक्टर या कोई सेवा — यहाँ
+      आसानी से खोजें।
+    </p>
+    <form class="search" role="search" (submit)="onSearchSubmit($event, query.value)">
+      <label class="sr" for="query">Search businesses</label>
+      <input
+        #query
+        id="query"
+        type="search"
+        placeholder="Search e.g. tea, doctor, mobile shop..."
+        autocomplete="off"
+        [value]="searchTerm()"
+        (input)="onSearchInput(query.value)"
+      />
+      <button class="btn" type="submit">🔍 Search Businesses</button>
+    </form>
+    <div class="hint">Or simply tap a category below — no typing needed.</div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="section" id="browse" aria-labelledby="category-browser-title">
+    <div class="category-bar">
+      <div>
+        <h2 id="category-browser-title">Browse by category</h2>
+        <p class="intro">Tap what you need / अपनी जरूरत चुनें</p>
+      </div>
+      <button class="linkbtn" type="button" (click)="resetAll()">Show all businesses ↗</button>
+    </div>
+    <div class="category-grid">
+      @for (category of categories(); track category.slug) {
+        <button
+          type="button"
+          class="cat"
+          [class.active]="selectedCategory() === category.slug"
+          [attr.aria-pressed]="selectedCategory() === category.slug"
+          (click)="toggleCategory(category.slug)"
+        >
+          <span class="emoji" aria-hidden="true">{{ categoryIcon(category.name) }}</span>
+          <strong>{{ category.name }}</strong>
+          <small>{{ subcategoryPreview(category) }}</small>
+        </button>
+      }
+    </div>
+    @if (selectedCategoryData(); as category) {
+      <div class="subpanel">
+        <h3>{{ categoryIcon(category.name) }} {{ category.name }} — Choose a type</h3>
+        <p>Choose a type below to find the right shop or service.</p>
+        <div class="subgrid">
+          <button
+            type="button"
+            class="sub"
+            [class.active]="!selectedSubcategory()"
+            (click)="setSubcategory('')"
+          >
+            All {{ category.name }} →
+          </button>
+          @for (subcategory of filterOptions().subcategories; track subcategory.slug) {
+            <button
+              type="button"
+              class="sub"
+              [class.active]="selectedSubcategory() === subcategory.slug"
+              (click)="setSubcategory(subcategory.slug)"
+            >
+              {{ subcategory.name }} →
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="section" id="business-section" aria-label="Business directory">
+    <div class="results-head">
+      <div>
+        <h2>{{ resultTitle() }}</h2>
+        <p aria-live="polite">
+          {{ resultCount() }} {{ resultCount() === 1 ? 'business' : 'businesses' }} found
+        </p>
+      </div>
+      <select
+        class="sort"
+        aria-label="Sort businesses"
+        [value]="sortBy()"
+        (change)="setSort($any($event.target).value)"
+      >
+        <option value="name-asc">Name A–Z</option>
+        <option value="name-desc">Name Z–A</option>
+        <option value="newest">Newest</option>
+      </select>
+    </div>
+
+    @if (resultCount() === 0) {
+      <div class="empty">
+        @if (businesses().length === 0) {
+          No businesses listed yet.<br />Own a local business?
+          <a class="empty-link" routerLink="/my/business/new">List your business</a>
+        } @else {
+          No businesses listed for this selection yet.<br />Try another category or clear your
+          search.
+        }
+      </div>
+    } @else {
+      <div class="results">
+        @for (business of pagedBusinesses(); track business.id) {
+          <article class="business">
+            <div class="avatar" aria-hidden="true">{{ businessIcon(business) }}</div>
+            <div>
+              <div class="tag">{{ business.subcategoryName || business.categoryName }}</div>
+              <h3>{{ business.name }}</h3>
+              @if (business.area) {
+                <p>📍 {{ business.area }}, Thakurganj</p>
+              }
+              @if (business.shortDescription) {
+                <p>{{ business.shortDescription }}</p>
+              }
+              <div class="actions">
+                <a [routerLink]="['/businesses', business.id]">View Details →</a>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+      <tk-pagination
+        class="pager"
+        [currentPage]="safePage()"
+        [totalPages]="totalPages()"
+        (pageChange)="setPage($event)"
+      />
+    }
+  </section>
+
+  <div class="cta">
+    <div>
+      <h2>Have a shop or offer a service?</h2>
+      <p>
+        Register your shop, profession or service for free so people in Thakurganj can find and
+        contact you.
+      </p>
+      <p>अपनी दुकान या सेवा की जानकारी मुफ्त में जोड़ें।</p>
+    </div>
+    <a class="btn" routerLink="/my/business/new">+ List Your Business — Free</a>
+  </div>
+</div>

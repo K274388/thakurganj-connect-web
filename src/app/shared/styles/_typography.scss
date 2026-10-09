@@ -1,0 +1,42 @@
+body {
+  color: var(--tk-black);
+  background: var(--tk-white);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tk-display-xl,
+.tk-display-lg,
+.tk-heading-xl,
+.tk-heading-lg,
+.tk-heading-md {
+  color: var(--tk-black);
+  font-weight: 850;
+  letter-spacing: -0.04em;
+}
+
+.tk-display-xl { font-size: clamp(3rem, 6vw, 5.5rem); line-height: 0.95; }
+.tk-display-lg { font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1; }
+.tk-heading-xl { font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.05; }
+.tk-heading-lg { font-size: clamp(1.6rem, 3vw, 2.5rem); line-height: 1.1; }
+.tk-heading-md { font-size: clamp(1.25rem, 2vw, 1.75rem); line-height: 1.2; }
+.tk-body-lg { font-size: clamp(1.0625rem, 1.5vw, 1.25rem); line-height: 1.6; }
+.tk-body { font-size: 1rem; line-height: 1.55; }
+.tk-body-sm { font-size: 0.9rem; line-height: 1.5; }
+.tk-label { font-size: 0.875rem; font-weight: 750; line-height: 1.3; }
+.tk-caption { color: var(--tk-gray-600); font-size: 0.8rem; line-height: 1.4; }
+
+.tk-container {
+  width: min(calc(100% - 3rem), var(--tk-container-width));
+  margin-inline: auto;
+}
+
+.tk-section { padding-block: clamp(3rem, 7vw, 6rem); }
+.tk-stack { display: flex; flex-direction: column; gap: var(--tk-space-4); }
+.tk-cluster { display: flex; flex-wrap: wrap; align-items: center; gap: var(--tk-space-3); }
+
+@media (max-width: 767px) {
+  .tk-container { width: calc(100% - 2rem); }
+}

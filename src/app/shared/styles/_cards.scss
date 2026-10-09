@@ -1,0 +1,12 @@
+.tk-card, .tk-outlined-card, .tk-dark-card, .tk-accent-card {
+  overflow: hidden;
+  border: var(--tk-border-width) solid var(--tk-border);
+  border-radius: var(--tk-radius-md);
+}
+.tk-card, .tk-outlined-card { background: var(--tk-white); }
+.tk-card { padding: var(--tk-space-6); }
+.tk-outlined-card { padding: var(--tk-space-6); box-shadow: 4px 4px 0 var(--tk-border); }
+.tk-dark-card { padding: var(--tk-space-6); background: var(--tk-black); color: var(--tk-white); }
+.tk-accent-card { padding: var(--tk-space-6); background: var(--tk-yellow-light); }
+.tk-card-hover { transition: transform 150ms ease, box-shadow 150ms ease; }
+.tk-card-hover:hover { transform: translateY(-3px); box-shadow: 4px 5px 0 var(--tk-border); }

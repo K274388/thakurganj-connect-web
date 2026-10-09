@@ -1,0 +1,187 @@
+<div class="tk-container details">
+  @switch (state().status) {
+    @case ('loading') {
+      <tk-loading label="Loading business" />
+    }
+    @case ('error') {
+      <tk-error-state
+        title="Couldn't load this business"
+        message="Please try again."
+        (retry)="retry()"
+      />
+    }
+    @case ('notFound') {
+      <tk-empty-state
+        title="Business not found"
+        message="The business you're looking for doesn't exist or is no longer available."
+        actionLabel="Browse businesses"
+        (action)="goToDirectory()"
+      />
+    }
+    @case ('inactive') {
+      <tk-empty-state
+        title="Business unavailable"
+        message="This business is currently not available in the public directory."
+        actionLabel="Back to businesses"
+        (action)="goToDirectory()"
+      />
+    }
+    @default {
+      @if (business(); as b) {
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <ol>
+            <li><a routerLink="/businesses">Businesses</a></li>
+            <li>
+              <a routerLink="/businesses" [queryParams]="{ category: b.categorySlug }">{{
+                b.categoryName
+              }}</a>
+            </li>
+            <li aria-current="page">{{ b.name }}</li>
+          </ol>
+        </nav>
+
+        <div class="layout">
+          <div class="main">
+            <header class="header">
+              <p class="eyebrow">
+                {{ b.categoryName }}
+                @if (b.subcategoryName) {
+                  <span> / {{ b.subcategoryName }}</span>
+                }
+              </p>
+              <h2>{{ b.name }}</h2>
+              @if (locationSummary()) {
+                <p class="location-summary">{{ locationSummary() }}</p>
+              }
+              @if (b.shortDescription) {
+                <p class="short">{{ b.shortDescription }}</p>
+              }
+              <div class="actions">
+                @if (callHref()) {
+                  <a class="tk-button tk-button-primary" [href]="callHref()">Call</a>
+                }
+                @if (whatsappHref()) {
+                  <a
+                    class="tk-button tk-button-outline"
+                    [href]="whatsappHref()"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >WhatsApp<span class="sr-only"> (opens in a new tab)</span></a
+                  >
+                }
+                @if (directionsHref()) {
+                  <a
+                    class="tk-button tk-button-outline"
+                    [href]="directionsHref()"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Get directions<span class="sr-only"> (opens in a new tab)</span></a
+                  >
+                }
+              </div>
+            </header>
+
+            <section class="card" aria-labelledby="about-title">
+              <h2 id="about-title">About</h2>
+              <p>{{ b.description || b.shortDescription }}</p>
+            </section>
+
+            @if (b.services.length) {
+              <section class="card" aria-labelledby="services-title">
+                <h2 id="services-title">Products &amp; services</h2>
+                <ul class="pills">
+                  @for (service of b.services; track service) {
+                    <li>{{ service }}</li>
+                  }
+                </ul>
+              </section>
+            }
+
+            @if (hasLocation()) {
+              <section class="card" aria-labelledby="location-title">
+                <h2 id="location-title">Location</h2>
+                <dl class="facts">
+                  @if (b.address) {
+                    <div>
+                      <dt>Address</dt>
+                      <dd>{{ b.address }}</dd>
+                    </div>
+                  }
+                  @if (b.area) {
+                    <div>
+                      <dt>Area</dt>
+                      <dd>{{ b.area }}</dd>
+                    </div>
+                  }
+                  @if (b.landmark) {
+                    <div>
+                      <dt>Landmark</dt>
+                      <dd>{{ b.landmark }}</dd>
+                    </div>
+                  }
+                  @if (b.pinCode) {
+                    <div>
+                      <dt>PIN Code</dt>
+                      <dd>{{ b.pinCode }}</dd>
+                    </div>
+                  }
+                </dl>
+                <div
+                  class="map-placeholder"
+                  role="img"
+                  aria-label="Map placeholder: map coming soon"
+                >
+                  <strong>LOCATION MAP</strong>
+                  <span>Map coming soon</span>
+                </div>
+                @if (directionsHref()) {
+                  <a
+                    class="tk-button tk-button-outline"
+                    [href]="directionsHref()"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Get directions<span class="sr-only"> (opens in a new tab)</span></a
+                  >
+                }
+              </section>
+            }
+          </div>
+
+          <aside class="side" aria-label="Contact and hours">
+            @if (hasContact()) {
+              <section class="card" aria-labelledby="contact-title">
+                <h2 id="contact-title">Contact</h2>
+                <app-business-contact [business]="b" />
+              </section>
+            }
+            @if (hasHours()) {
+              <section class="card" aria-labelledby="hours-title">
+                <h2 id="hours-title">Business hours</h2>
+                <app-business-hours [hours]="b.hours ?? []" />
+              </section>
+            }
+          </aside>
+        </div>
+
+        <section class="report" aria-labelledby="report-title">
+          <div>
+            <h2 id="report-title">Is something wrong with this information?</h2>
+            <p>Help keep Thakurganj Connect accurate.</p>
+          </div>
+          <button
+            class="tk-button tk-button-outline"
+            type="button"
+            (click)="reportNotice.set(true)"
+          >
+            Report information
+          </button>
+          @if (reportNotice()) {
+            <p class="notice" role="status">Reporting will be available soon.</p>
+          }
+        </section>
+      }
+    }
+  }
+</div>
+
+<app-home-business-cta />

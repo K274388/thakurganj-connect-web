@@ -1,0 +1,55 @@
+<section class="overview" [attr.aria-labelledby]="'overview-title-' + info().slug">
+  @if (info().heroImage) {
+    <img class="banner" [src]="info().heroImage" alt="" loading="lazy" />
+  }
+  <p class="subtitle">{{ info().subtitle }}</p>
+  <h2 [id]="'overview-title-' + info().slug" class="title">{{ info().title }}</h2>
+  <p class="description">{{ info().description }}</p>
+
+  @if (info().cards.length) {
+    <ul class="cards">
+      @for (card of info().cards; track card.id) {
+        <li class="card">
+          <span class="icon" aria-hidden="true">{{ card.icon }}</span>
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.description }}</p>
+        </li>
+      }
+    </ul>
+  }
+
+  @if (info().sections.length) {
+    <div class="sections">
+      @for (section of info().sections; track section.id) {
+        <article class="section" [attr.aria-labelledby]="'section-' + section.id">
+          @if (section.image) {
+            <img class="section-image" [src]="section.image" alt="" loading="lazy" />
+          }
+          <h3 [id]="'section-' + section.id">{{ section.title }}</h3>
+          <p>{{ section.description }}</p>
+          @if (section.details?.length) {
+            <dl class="details">
+              @for (detail of section.details; track detail.label) {
+                <dt>{{ detail.label }}</dt>
+                <dd>{{ detail.value }}</dd>
+              }
+            </dl>
+          }
+          @if (section.links?.length || section.directionsUrl) {
+            <ul class="links">
+              @for (link of section.links; track link.url) {
+                <li><a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.label }}</a></li>
+              }
+              @if (section.directionsUrl) {
+                <li><a [href]="section.directionsUrl" target="_blank" rel="noopener noreferrer">Get directions</a></li>
+              }
+            </ul>
+          }
+          @if (section.lastVerified) {
+            <p class="verified">Last verified: {{ section.lastVerified }}</p>
+          }
+        </article>
+      }
+    </div>
+  }
+</section>

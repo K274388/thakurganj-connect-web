@@ -1,0 +1,62 @@
+<section class="directory-hero" aria-labelledby="directory-title">
+  <div class="tk-container">
+    <p class="eyebrow">EXPLORE THAKURGANJ</p>
+    <h1 id="directory-title" class="tk-display-lg">Places worth<br />knowing.</h1>
+    <p class="intro">Discover landmarks, markets, transport and useful places around town.</p>
+    <tk-search-box
+      class="directory-search"
+      placeholder="Search places..."
+      buttonText="Search"
+      [value]="searchTerm()"
+      (search)="submitSearch($event)"
+    />
+  </div>
+</section>
+
+<main class="directory tk-container" aria-label="Places directory">
+  <nav class="filters" aria-label="Filter places by category">
+    @for (filter of categoryFilters; track filter.slug) {
+      <tk-filter-pill
+        [label]="filter.label"
+        [active]="selectedCategory() === filter.slug"
+        (selected)="setCategory(filter.slug)"
+      />
+    }
+  </nav>
+
+  @if (categoryInfo(); as info) {
+    <app-category-overview [info]="info" />
+  }
+
+  @if (activePlaces().length === 0) {
+    <tk-empty-state
+      title="No places available yet."
+      message="We're still building the Thakurganj places directory."
+    />
+  } @else if (resultCount() === 0) {
+    <tk-empty-state
+      title="No places found."
+      message="We couldn't find any places matching your search. Try another search or remove the category filter."
+      actionLabel="Clear filters"
+      (action)="clearFilters()"
+    />
+  } @else {
+    <div class="results-toolbar" aria-live="polite">
+      <p class="result-count">{{ resultCount() }} {{ resultCount() === 1 ? 'place' : 'places' }} found</p>
+      <p class="range">Showing {{ showingStart() }}-{{ showingEnd() }} of {{ resultCount() }}</p>
+    </div>
+
+    <div class="place-grid">
+      @for (place of pagedPlaces(); track place.id) {
+        <tk-place-card [place]="place" />
+      }
+    </div>
+
+    <tk-pagination
+      class="pagination"
+      [currentPage]="safePage()"
+      [totalPages]="totalPages()"
+      (pageChange)="setPage($event)"
+    />
+  }
+</main>

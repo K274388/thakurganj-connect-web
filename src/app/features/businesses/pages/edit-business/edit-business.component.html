@@ -1,0 +1,76 @@
+﻿@switch (access()) {
+  @case ('not-found') {
+    <section class="hero" aria-labelledby="edit-title">
+      <div class="tk-container">
+        <p class="eyebrow">MY BUSINESSES / EDIT</p>
+        <h1 id="edit-title" class="tk-heading-xl">Business not found</h1>
+        <p class="intro">The business you're trying to edit doesn't exist or is no longer available.</p>
+        <a class="tk-button tk-button-dark back" routerLink="/my/businesses">Back to My Businesses</a>
+      </div>
+    </section>
+  }
+  @case ('forbidden') {
+    <section class="hero" aria-labelledby="edit-title">
+      <div class="tk-container" role="alert">
+        <p class="eyebrow">MY BUSINESSES / EDIT</p>
+        <h1 id="edit-title" class="tk-heading-xl">You can't edit this business.</h1>
+        <p class="intro">You don't have permission to manage this listing.</p>
+        <a class="tk-button tk-button-dark back" routerLink="/my/businesses">Back to My Businesses</a>
+      </div>
+    </section>
+  }
+  @default {
+    @if (business(); as business) {
+      <section class="hero" aria-labelledby="edit-title">
+        <div class="tk-container">
+          <p class="eyebrow">MY BUSINESSES / EDIT</p>
+          <h1 id="edit-title" class="tk-heading-xl">Keep your listing<br />up to date.</h1>
+          <p class="intro">Update the information people see about your business.</p>
+          <p class="summary-line">
+            <strong class="name">{{ business.name }}</strong>
+            <span>{{ business.categoryName }}@if (business.area) { · {{ business.area }}}</span>
+            <span class="status" [class.inactive]="business.status === 'INACTIVE'">
+              <span class="visually-hidden">Status: </span>{{ business.status }}
+            </span>
+          </p>
+          @if (business.status === 'INACTIVE') {
+            <p class="note">This listing is currently not visible in the public directory.</p>
+          }
+        </div>
+      </section>
+
+      <section class="content tk-container">
+        @if (saveState() === 'success') {
+          <div class="success" role="status">
+            <p class="success-message">{{ successMessage }}</p>
+            <div class="success-actions">
+              @if (business.status === 'ACTIVE') {
+                <a class="tk-button tk-button-primary" [routerLink]="['/businesses', business.id]">View business</a>
+              }
+              <a class="tk-button tk-button-outline" routerLink="/my/businesses">Back to My Businesses</a>
+              <button type="button" class="tk-button tk-button-outline" (click)="continueEditing()">Continue editing</button>
+            </div>
+          </div>
+        } @else {
+          <!-- Keyed by id so navigating between businesses re-hydrates a fresh form. -->
+          @for (item of [business]; track item.id) {
+            <app-business-form mode="edit" [business]="item" [saveState]="saveState()" (saved)="save($event)" (cancelled)="cancel()" />
+          }
+        }
+      </section>
+    }
+  }
+}
+
+<tk-modal
+  [open]="confirmOpen()"
+  title="Discard changes?"
+  titleId="discard-title"
+  confirmLabel="Discard"
+  cancelLabel="Keep editing"
+  (closed)="keepEditing()"
+  (confirmed)="discard()"
+>
+  <p>Your unsaved changes will be lost.</p>
+</tk-modal>
+

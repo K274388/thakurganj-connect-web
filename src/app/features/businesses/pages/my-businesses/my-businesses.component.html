@@ -1,0 +1,46 @@
+﻿<section class="hero" aria-labelledby="my-businesses-title">
+  <div class="tk-container hero-inner">
+    <div>
+      <p class="eyebrow">MY BUSINESSES</p>
+      <h1 id="my-businesses-title" class="tk-heading-xl">Your businesses,<br />all in one place.</h1>
+      <p class="intro">Manage the information people see on Thakurganj Connect.</p>
+    </div>
+    <a class="tk-button tk-button-dark" routerLink="/my/business/new">+ Add business</a>
+  </div>
+</section>
+
+<section class="content tk-container" aria-labelledby="my-list-title">
+  <h2 id="my-list-title" class="visually-hidden">Your listed businesses</h2>
+  @if (businesses().length === 0) {
+    <div class="empty">
+      <h2>No businesses yet.</h2>
+      <p>Put your business on the map and help people in Thakurganj find you.</p>
+      <a class="tk-button tk-button-primary" routerLink="/my/business/new">List your business</a>
+    </div>
+  } @else {
+    <ul class="list">
+      @for (business of businesses(); track business.id) {
+        <li class="card">
+          <tk-image-placeholder class="image" [src]="business.logoUrl || business.coverImageUrl || business.imageUrl || ''" [alt]="business.name" placeholderText="No photo" />
+          <div class="details">
+            <h3>{{ business.name }}</h3>
+            <p class="meta">{{ business.categoryName }}@if (business.subcategoryName) { · {{ business.subcategoryName }}}</p>
+            @if (business.area) { <p class="meta">{{ business.area }}</p> }
+            <p class="status" [class.inactive]="business.status === 'INACTIVE'">
+              <span class="visually-hidden">Status: </span>{{ business.status }}
+            </p>
+            @if (business.status === 'INACTIVE') {
+              <p class="inactive-note">This listing is currently not visible in the public directory.</p>
+            }
+            <div class="actions">
+              @if (business.status === 'ACTIVE') {
+                <a class="tk-button tk-button-outline" [routerLink]="['/businesses', business.id]">View<span class="visually-hidden"> {{ business.name }}</span></a>
+              }
+              <a class="tk-button tk-button-outline" [routerLink]="['/my/businesses', business.id, 'edit']">Edit<span class="visually-hidden"> {{ business.name }}</span></a>
+            </div>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>

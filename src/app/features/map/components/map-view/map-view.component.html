@@ -1,0 +1,10 @@
+<div class="map-wrap">
+  <div #container class="map" role="region" aria-label="Map of Thakurganj showing businesses and places"></div>
+  @if (failed()) {
+    <div class="failure" role="alert">
+      <h2>We couldn't load the map.</h2>
+      <p>You can still browse the available locations below.</p>
+      <button type="button" class="retry" (click)="retry()">Try again</button>
+    </div>
+  }
+</div>

@@ -1,0 +1,85 @@
+@switch (state().status) {
+  @case ('notFound') {
+    <div class="tk-container state">
+      <tk-empty-state
+        title="Category not found"
+        message="The category you're looking for doesn't exist or is no longer available."
+        actionLabel="Browse categories"
+        (action)="browseCategories()"
+      />
+    </div>
+  }
+  @case ('unavailable') {
+    <div class="tk-container state">
+      <tk-empty-state
+        title="Category unavailable"
+        message="This category is currently not available."
+        actionLabel="Browse categories"
+        (action)="browseCategories()"
+      />
+    </div>
+  }
+  @default {
+    @if (category(); as c) {
+      <section class="hero" aria-labelledby="category-title">
+        <div class="tk-container">
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <ol>
+              <li><a routerLink="/">Home</a></li>
+              <li><a routerLink="/categories">Categories</a></li>
+              <li aria-current="page">{{ c.name }}</li>
+            </ol>
+          </nav>
+          <span class="icon" aria-hidden="true">{{ card()?.icon }}</span>
+          <h1 id="category-title" class="tk-heading-xl">{{ c.name }}</h1>
+          @if (c.description) { <p class="intro">{{ c.description }}</p> }
+          <p class="count">{{ businessCount() }} local {{ businessCount() === 1 ? 'business' : 'businesses' }}</p>
+        </div>
+      </section>
+
+      @if (subcategories().length) {
+        <section class="tk-container block" aria-labelledby="types-title">
+          <h2 id="types-title">Browse by type</h2>
+          <ul class="type-grid">
+            @for (sub of subcategories(); track sub.id) {
+              <li>
+                <a
+                  class="type-link"
+                  routerLink="/businesses"
+                  [queryParams]="{ category: c.slug, subcategory: sub.slug }"
+                >
+                  <span class="type-name">{{ sub.name }}</span>
+                  <span class="type-count">{{ formatCount(sub.count) }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      <section class="tk-container block" aria-labelledby="businesses-title">
+        <h2 id="businesses-title">Businesses</h2>
+        @if (preview().length) {
+          <div class="business-grid">
+            @for (business of preview(); track business.id) {
+              <tk-business-card [business]="business" />
+            }
+          </div>
+          <p class="view-all">
+            <a class="tk-button tk-button-primary" routerLink="/businesses" [queryParams]="{ category: c.slug }">
+              View all {{ c.name }} businesses →
+            </a>
+          </p>
+        } @else {
+          <div class="no-businesses">
+            <p class="no-title">No businesses listed in this category yet.</p>
+            <p>Own a local business in this category?</p>
+            <a class="tk-button tk-button-primary" routerLink="/my/business/new">List your business</a>
+          </div>
+        }
+      </section>
+
+      <app-home-business-cta />
+    }
+  }
+}

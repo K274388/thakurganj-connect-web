@@ -1,0 +1,26 @@
+<section class="categories-hero" aria-labelledby="categories-title">
+  <div class="tk-container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        <li><a routerLink="/">Home</a></li>
+        <li aria-current="page">Categories</li>
+      </ol>
+    </nav>
+    <p class="eyebrow">EXPLORE BUSINESSES</p>
+    <h1 id="categories-title" class="tk-heading-xl">What do you need today?</h1>
+    <p class="intro">Browse shops, services and local businesses by category.</p>
+  </div>
+</section>
+
+<section class="categories tk-container" aria-labelledby="all-categories-title">
+  <h2 id="all-categories-title" class="visually-hidden">All categories</h2>
+  <ul class="category-grid">
+    @for (card of cards(); track card.id) {
+      <li>
+        <tk-category-card [category]="card" [showDescription]="true" actionLabel="Explore →" />
+      </li>
+    }
+  </ul>
+</section>
+
+<app-home-business-cta />

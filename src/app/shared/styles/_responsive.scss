@@ -1,0 +1,9 @@
+:root {
+  --tk-breakpoint-mobile: 768px;
+  --tk-breakpoint-tablet: 1024px;
+  --tk-breakpoint-desktop: 1440px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

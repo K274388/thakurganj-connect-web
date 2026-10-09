@@ -1,10 +1,15 @@
-import { TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { App } from './app';
+import { routes } from './app.routes';
+import { PublicLayoutComponent } from './layout/public-layout/public-layout.component';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [provideRouter(routes, withComponentInputBinding())],
     })
       .compileComponents();
   });
@@ -15,10 +20,12 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', async () => {
-    const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, thakurganj-connect-web');
+  it('should render the home route', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/', PublicLayoutComponent);
+    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain(
+      'Thakurganj',
+    );
   });
 });
+

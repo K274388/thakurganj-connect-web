@@ -1,0 +1,86 @@
+<main class="explorer">
+  <header class="intro">
+    <h1>Explore Thakurganj on the map</h1>
+    <p>Only listings with map locations are shown here.</p>
+  </header>
+
+  @if (allItems().length === 0) {
+    <section class="message" aria-live="polite">
+      <h2>No locations are available on the map yet.</h2>
+      <p>Businesses and places will appear here once map locations are available.</p>
+    </section>
+  } @else {
+    <div class="toolbar">
+      <tk-search-box placeholder="Search the map..." [value]="filters().search" (search)="setSearch($event)" />
+      <div class="filters">
+        <div class="types" role="group" aria-label="Filter by type">
+          @for (option of typeOptions; track option.value) {
+            <tk-filter-pill [label]="option.label" [active]="filters().type === option.value" (selected)="setType(option.value)" />
+          }
+        </div>
+        <label class="category">
+          <span>Category</span>
+          <select [value]="categoryValue()" (change)="setCategory($any($event.target).value)">
+            <option value="" [selected]="categoryValue() === ''">All categories</option>
+            @if (showBusinessCategories()) {
+              <optgroup label="Business categories">
+                @for (category of businessCategories; track category.id) {
+                  <option [value]="'business:' + category.slug" [selected]="categoryValue() === 'business:' + category.slug">{{ category.name }}</option>
+                }
+              </optgroup>
+            }
+            @if (showPlaceCategories()) {
+              <optgroup label="Place categories">
+                @for (category of placeCategories; track category.id) {
+                  <option [value]="'place:' + category.slug" [selected]="categoryValue() === 'place:' + category.slug">{{ category.name }}</option>
+                }
+              </optgroup>
+            }
+          </select>
+        </label>
+        @if (hasFilters()) {
+          <button type="button" class="clear" (click)="clearFilters()">Clear filters</button>
+        }
+      </div>
+    </div>
+
+    <div class="split">
+      <div class="map-area">
+        <tk-map-view [items]="items()" [selectedKey]="selectedKey()" (markerSelected)="selectFromMap($event)" (itemOpened)="openItem($event)" />
+      </div>
+
+      <section class="results" [attr.data-sheet]="sheetState()" aria-labelledby="results-heading">
+        <div class="results-head">
+          <div>
+            <h2 id="results-heading" class="visually-hidden">Results</h2>
+            <p class="count" role="status" aria-live="polite">
+              <strong>{{ summary() }}</strong>
+              @if (filters().type === 'all' && items().length) {
+                <span>{{ breakdown() }}</span>
+              }
+            </p>
+          </div>
+          <div class="sheet-controls">
+            <button type="button" (click)="toggleSheet()" [attr.aria-expanded]="sheetState() !== 'collapsed'" aria-controls="results-body">
+              {{ sheetState() === 'collapsed' ? 'Show results' : 'Hide results' }}
+            </button>
+            @if (sheetState() !== 'collapsed') {
+              <button type="button" (click)="toggleExpanded()">{{ sheetState() === 'expanded' ? 'Collapse results' : 'Expand results' }}</button>
+            }
+          </div>
+        </div>
+        <div id="results-body" class="results-body">
+          @if (items().length) {
+            <tk-map-results-list [items]="items()" [selectedKey]="selectedKey()" (itemSelected)="selectFromList($event)" />
+          } @else {
+            <div class="empty">
+              <h2>No map results found.</h2>
+              <p>Try another search or change your filters.</p>
+              <button type="button" class="clear" (click)="clearFilters()">Clear filters</button>
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+  }
+</main>

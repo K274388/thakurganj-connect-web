@@ -1,0 +1,29 @@
+﻿:host { display: block; }
+.hero { padding-block: clamp(1.5rem, 4vw, 3rem); border-bottom: 2px solid var(--tk-border); background: var(--tk-yellow-light); }
+.hero-inner { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.5rem; }
+.eyebrow { margin: 0 0 0.7rem; color: var(--tk-magenta-dark); font-size: 0.78rem; font-weight: 850; letter-spacing: 0.13em; }
+h1 { margin: 0; }
+.intro { margin: 1rem 0 0; color: var(--tk-gray-600); font-size: 1.1rem; line-height: 1.5; }
+@media (max-width: 600px) { .hero-inner .tk-button { width: 100%; } }
+
+.content { padding-block: clamp(1.5rem, 4vw, 3rem); }
+.list { display: grid; gap: 1.25rem; margin: 0; padding: 0; list-style: none; }
+.card { display: grid; grid-template-columns: 12rem minmax(0, 1fr); overflow: hidden; border: 2px solid var(--tk-border); border-radius: var(--tk-radius-lg); background: var(--tk-white); }
+.image { height: 100%; min-height: 10rem; }
+.details { min-width: 0; padding: 1.25rem; }
+h3 { margin: 0 0 0.4rem; font-size: 1.35rem; overflow-wrap: anywhere; }
+.meta { margin: 0.15rem 0; color: var(--tk-gray-600); }
+.status { display: inline-block; margin: 0.75rem 0 0; padding: 0.2rem 0.7rem; border: 2px solid var(--tk-border); border-radius: 999px; background: var(--tk-yellow); font-size: 0.8rem; font-weight: 850; letter-spacing: 0.06em; }
+.status.inactive { background: var(--tk-gray-100); }
+.actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
+@media (max-width: 600px) {
+  .card { grid-template-columns: minmax(0, 1fr); }
+  .image { height: 10rem; }
+  .actions .tk-button { flex: 1; }
+}
+
+.empty { padding: clamp(1.5rem, 4vw, 3rem); border: 2px solid var(--tk-border); border-radius: var(--tk-radius-lg); background: var(--tk-white); text-align: center; }
+.empty h2 { margin: 0 0 0.5rem; }
+.empty p { margin: 0 0 1.25rem; color: var(--tk-gray-600); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.inactive-note { margin: 0.75rem 0 0; font-weight: 700; }

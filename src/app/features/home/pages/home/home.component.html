@@ -1,0 +1,89 @@
+﻿<section class="hero">
+  <div class="container hero-inner">
+    <p class="welcome">Welcome to</p>
+    <h1>Thakurganj</h1>
+    <p class="location">Kishanganj, Bihar, India</p>
+    <p class="hindi" lang="hi">ठाकुरगंज — हमारी शान, हमारी पहचान </p>
+    <p class="hero-desc">Discover our town, local businesses, places, services and community<br class="desktop" /> — all in one platform.</p>
+    <div class="hero-actions">
+      <a class="btn btn-green" routerLink="/businesses"><svg lucideSearch></svg> Explore Businesses</a>
+      <a class="btn btn-white" routerLink="/places"><svg lucideMapPin></svg> Explore Places</a>
+    </div>
+  </div>
+  <span class="photo-credit"><svg lucideCamera></svg> Illustrative tea garden image</span>
+</section>
+
+<div class="container">
+  <nav class="quick-links" aria-label="Quick links">
+    @for (link of quickLinks; track link.label) {
+      <a [routerLink]="link.path" [queryParams]="link.query">
+        <span class="quick-icon" [class]="link.color"><svg [lucideIcon]="link.icon"></svg></span>
+        <strong>{{ link.label }}</strong>
+        <small [innerHTML]="link.text"></small>
+      </a>
+    }
+  </nav>
+
+  <section class="stats" aria-label="Thakurganj facts">
+    <div><svg lucideMapPin></svg><span><small>District</small><strong>Kishanganj, Bihar</strong></span></div>
+    <div><svg lucideBuilding></svg><span><small>Administration</small><strong>Municipality &amp; Block</strong></span></div>
+    <div><svg lucideUsers></svg><span><small>Town Population</small><strong class="number">24,449</strong><small>(2011 Census)</small></span></div>
+    <div><svg lucideUsersRound></svg><span><small>Block Population</small><strong class="number">297,772</strong><small>(2011 Census)</small></span></div>
+  </section>
+
+  <section class="about">
+    <div class="about-copy">
+      <h2>About Thakurganj</h2>
+      <p>Thakurganj is a town in the Kishanganj district of Bihar, located in the northeastern part of the state, close to West Bengal and the Nepal border region. Known for its green surroundings, tea gardens, agricultural landscape, local markets and vibrant community, Thakurganj is an important town in the Seemanchal region.</p>
+      <a routerLink="/about" class="btn btn-green">Learn More <svg lucideArrowRight></svg></a>
+    </div>
+    <figure class="feature-image">
+      <img src="images/station.webp" alt="Illustration of Thakurganj railway station" loading="lazy" />
+      <figcaption>Thakurganj Railway Station (illustration)</figcaption>
+    </figure>
+  </section>
+
+  <section id="gallery" class="gallery" aria-label="Thakurganj gallery">
+    @for (item of gallery; track item.src) {
+      <figure><img [src]="item.src" [alt]="item.alt" loading="lazy" /><figcaption>{{ item.caption }}</figcaption></figure>
+    }
+  </section>
+
+  <section class="section">
+    <div class="section-heading">
+      <h2>Popular Categories</h2>
+      <a routerLink="/businesses">View All Categories <svg lucideArrowRight></svg></a>
+    </div>
+    <div class="category-grid">
+      @for (cat of categories; track cat.label) {
+        <a [routerLink]="cat.path" [queryParams]="cat.query">
+          <svg [lucideIcon]="cat.icon"></svg><strong>{{ cat.label }}</strong>
+        </a>
+      }
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-heading">
+      <h2>Explore Thakurganj</h2>
+      <a routerLink="/places">View All Places <svg lucideArrowRight></svg></a>
+    </div>
+    <div class="place-grid">
+      @for (place of places; track place.name) {
+        <a class="place" [routerLink]="place.path" [queryParams]="place.query">
+          <img [src]="place.src" [alt]="place.alt" loading="lazy" />
+          <div><strong>{{ place.name }}</strong><small>{{ place.type }}</small></div>
+        </a>
+      }
+    </div>
+  </section>
+
+  <section class="cta">
+    <div>
+      <small>BE A PART OF OUR COMMUNITY</small>
+      <h2>List Your Business on Thakurganj Connect</h2>
+      <p>Reach more customers in your city. It's simple, free and effective.</p>
+    </div>
+    <a class="btn btn-white" routerLink="/my/business/new"><svg lucidePlus></svg> Add Your Business</a>
+  </section>
+</div>

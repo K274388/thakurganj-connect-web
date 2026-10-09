@@ -1,0 +1,32 @@
+:host { display: block; }
+
+.overview { margin-bottom: 2rem; }
+.banner { display: block; width: 100%; max-height: 14rem; object-fit: cover; border: 2px solid var(--tk-border); margin-bottom: 1rem; }
+.subtitle { margin: 0 0 0.4rem; color: var(--tk-magenta-dark); font-size: 0.78rem; font-weight: 850; letter-spacing: 0.13em; text-transform: uppercase; }
+.title { margin: 0; }
+.description { margin: 0.75rem 0 1.25rem; max-width: 48rem; color: var(--tk-gray-600); line-height: 1.5; }
+
+.cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 0; padding: 0; list-style: none; }
+.card, .section { padding: 1rem; border: 2px solid var(--tk-border); background: #fff; }
+.card h3, .section h3 { margin: 0.4rem 0; font-size: 1.05rem; }
+.card p, .section p { margin: 0; line-height: 1.45; }
+.icon { font-size: 1.75rem; }
+
+.sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
+.section-image { display: block; width: 100%; max-height: 10rem; object-fit: cover; margin-bottom: 0.75rem; }
+.details { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 0.75rem; margin: 0.75rem 0 0; }
+.details dt { font-weight: 750; }
+.details dd { margin: 0; }
+.links { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin: 0.75rem 0 0; padding: 0; list-style: none; }
+.links a { font-weight: 750; }
+.section .verified { margin-top: 0.75rem; color: var(--tk-gray-600); font-size: 0.85rem; }
+
+@media (max-width: 900px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 600px) {
+  .cards { gap: 0.65rem; }
+  .card { padding: 0.75rem; }
+  .sections { grid-template-columns: minmax(0, 1fr); }
+}

@@ -1,0 +1,44 @@
+<main class="registration-page">
+  <section class="hero" aria-labelledby="add-business-title">
+    <div class="hero-inner">
+      <div>
+        <p class="eyebrow">YOUR CITY. YOUR BUSINESS. YOUR PEOPLE.</p>
+        <h1 id="add-business-title" class="tk-heading-xl">Apna kaam, <em>sabko batao.</em></h1>
+        <p class="intro">Have a shop, offer a service, or work independently? Add your details so people in Thakurganj can find and contact you. Simple, quick and free.</p>
+        <p class="intro intro-hindi" lang="hi">आपकी पहचान, आपके शहर के नाम!<br />अपना व्यवसाय या पेशा रजिस्टर करें, ताकि ठाकुरगंज के लोग आप तक आसानी से पहुँच सकें</p>
+      </div>
+      <div class="hero-note">
+        <strong>Get discovered locally</strong>
+        <p>From a small shop to a skilled professional — everyone deserves to be found. Start with just a few details and update your listing anytime.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="form" class="content tk-container" aria-label="Register your business">
+    @if (saveState() === 'success' && created(); as business) {
+      <div class="success" role="status">
+        <p class="success-message">{{ successMessage }}</p>
+        <p class="success-name">{{ business.name }}</p>
+        <div class="success-actions">
+          <a class="tk-button tk-button-primary" [routerLink]="['/businesses', business.id]">View business</a>
+          <a class="tk-button tk-button-outline" routerLink="/my/businesses">My businesses</a>
+          <button type="button" class="tk-button tk-button-outline" (click)="addAnother()">Add another business</button>
+        </div>
+      </div>
+    } @else {
+      <app-business-form [saveState]="saveState()" (saved)="save($event)" (cancelled)="cancel()" />
+    }
+  </section>
+</main>
+
+<tk-modal
+  [open]="confirmOpen()"
+  title="Discard changes?"
+  titleId="discard-title"
+  confirmLabel="Discard"
+  cancelLabel="Keep editing"
+  (closed)="keepEditing()"
+  (confirmed)="discard()"
+>
+  <p>Your unsaved business information will be lost.</p>
+</tk-modal>

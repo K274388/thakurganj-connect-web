@@ -1,59 +1,54 @@
-# ThakurganjConnectWeb
+# Thakurganj Connect
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.1.
+Angular application for the Thakurganj, Bihar local information directory. The project uses standalone Angular components, SCSS, Angular Router, HttpClient, and server-side rendering (SSR).
 
-## Development server
+## Prerequisites
 
-To start a local development server, run:
+- Node.js compatible with the installed Angular CLI version
+- npm
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Install and run
 
 ```bash
-ng generate component component-name
+npm install
+npx ng serve
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Open [http://localhost:4200](http://localhost:4200). The dev server uses `src/environments/environment.development.ts`; configure its `apiBaseUrl` when connecting a local API.
+
+You can also start the development server with `npm start`.
+
+## Build and tests
 
 ```bash
-ng generate --help
+npm run build
+npm test
 ```
 
-## Building
+## Application structure
 
-To build the project run:
+- `src/app/core` contains application-wide infrastructure.
+- `src/app/shared` contains reusable UI components and the centralized Thakurganj design tokens/styles.
+- `src/app/layout` contains the public application shell and reusable announcement, header, and footer components, plus user and admin layouts.
+- `src/app/features` is reserved for public feature areas.
+- `src/app/admin` contains the separate admin shell.
+- `src/environments` contains production and development configuration.
 
-```bash
-ng build
-```
+The homepage, mock-data business directory (`/businesses`) business details page (`/businesses/:id`) and categories pages (`/categories`, `/categories/:slug`) are implemented as lazy-loaded public features. Other routes currently render lightweight placeholders; their feature behavior and API integration are deferred to subsequent implementation stories.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Shared standalone UI components can be imported individually or through `src/app/shared/components/index.ts`. Global visual tokens are defined in `src/app/shared/styles/_variables.scss` and loaded by `src/styles.scss`.
 
-## Running unit tests
+Categories and subcategories live in one mock source of truth, `src/app/features/categories/data/category.mock.ts`, consumed by Home, the Business Directory and the Categories pages. It is intended to be replaced by a `CategoryService` backed by `GET /api/v1/categories`.
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+The backend endpoints and request/response contracts for the implemented directory flows are documented in [the backend API contract](./docs/backend-api-contract.md).
 
-```bash
-ng test
-```
+## My businesses (ANG-007)
 
-## Running end-to-end tests
+- `/my/businesses` lists the current owner's businesses; `/my/business/new` is the Add Business form (Reactive Forms). Both are `noindex`. `/my/businesses/new` remains a compatible legacy URL.
+- A valid save creates an `ACTIVE` business immediately (no approval workflow) via the in-memory `BusinessRepository`, which also feeds the public directory and details pages. Data resets on reload.
+- `MOCK_CURRENT_USER` stands in for authentication until `AuthStore` exists. Photo selections are previewed locally and never uploaded.
 
-For end-to-end (e2e) testing, run:
+## Edit business (ANG-008)
 
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- `/my/businesses/:id/edit` reuses `BusinessFormComponent` in `edit` mode. The page checks ownership, and `BusinessRepository.updateBusiness(id, ownerId, request)` enforces it again independently.
+- Editing never changes `status` (an INACTIVE listing stays INACTIVE); owners have no activate/deactivate/delete controls.

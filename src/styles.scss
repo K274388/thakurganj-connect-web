@@ -1,1 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
+@use "./app/shared/styles/variables";
+@use "./app/shared/styles/typography";
+@use "./app/shared/styles/buttons";
+@use "./app/shared/styles/forms";
+@use "./app/shared/styles/cards";
+@use "./app/shared/styles/responsive";
+
+* { box-sizing: border-box; }
+html { min-width: 0; }
+body { min-height: 100vh; margin: 0; }
+button, input, select, textarea { font: inherit; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid var(--tk-magenta);
+  outline-offset: 3px;
+}

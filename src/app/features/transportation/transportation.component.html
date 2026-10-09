@@ -1,0 +1,215 @@
+<nav class="crumb-bar" aria-label="Breadcrumb">
+  <div class="tk-container">
+    <a routerLink="/">🏠 Home</a><span aria-hidden="true">›</span><a routerLink="/places">Places</a
+    ><span aria-hidden="true">›</span><strong aria-current="page">Transportation</strong>
+  </div>
+</nav>
+
+<section class="hero" aria-labelledby="transport-title">
+  <div class="tk-container hero-inner">
+    <h1 id="transport-title">Transportation</h1>
+    <h2 class="tagline">Travel easy. Explore Thakurganj and beyond.</h2>
+    <p>
+      Find railway stations, bus services, nearby airports and local transportation options to plan your journey to
+      and around Thakurganj, District Kishanganj, Bihar.
+    </p>
+    <div class="hero-tabs">
+      @for (category of categories; track category.key) {
+        <button type="button" (click)="scrollTo(category.key)">
+          <span class="ring" aria-hidden="true">{{ category.icon }}</span>
+          <span class="txt"><b>{{ category.title }}</b><small>{{ category.subtitle }}</small></span>
+        </button>
+      }
+    </div>
+  </div>
+</section>
+
+<main class="tk-container page">
+  <section class="grid4" aria-label="Transportation categories">
+    @for (category of categories; track category.key) {
+      <article class="card category" [id]="category.key">
+        <div class="cat-head">
+          <span class="cat-icon {{ category.key }}" aria-hidden="true">{{ category.icon }}</span>
+          <div>
+            <h3>{{ category.title }}</h3>
+            <p>{{ category.description }}</p>
+          </div>
+        </div>
+        <img [src]="category.image" [alt]="category.title" loading="lazy" />
+        <button type="button" class="cat-btn {{ category.key }}" (click)="openDetail(category.key)">
+          View Details →
+        </button>
+      </article>
+    }
+  </section>
+
+  <section class="card panel" aria-labelledby="reach-title">
+    <div class="heading">
+      <span class="h-icon" aria-hidden="true">📍</span>
+      <div>
+        <h2 id="reach-title">How to Reach Thakurganj</h2>
+        <p>Quick travel information for visitors and residents.</p>
+      </div>
+    </div>
+    <div class="reach-grid">
+      @for (item of reachGuide; track item.title) {
+        <article>
+          <span class="round {{ item.tone }}" aria-hidden="true">{{ item.icon }}</span>
+          <div>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.text }}</p>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="middle">
+    <article class="card panel" id="map" aria-labelledby="map-title">
+      <div class="heading compact">
+        <span class="h-icon" aria-hidden="true">🗺️</span>
+        <h2 id="map-title">Key Transportation Points on Map</h2>
+        <a class="link" target="_blank" rel="noopener noreferrer" [href]="fullMapUrl">View Full Map</a>
+      </div>
+      <div class="map-wrap">
+        <iframe
+          title="Map of Thakurganj and nearby transportation points"
+          [src]="mapUrl"
+          loading="lazy"
+          referrerpolicy="no-referrer"
+        ></iframe>
+        <ul class="legend" aria-label="Map legend">
+          <li><i class="dot red"></i>Railway Station</li>
+          <li><i class="dot blue"></i>Bus Station</li>
+          <li><i class="dot green"></i>Airport</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="card panel" aria-labelledby="routes-title">
+      <div class="heading compact">
+        <span class="h-icon" aria-hidden="true">🛣️</span>
+        <h2 id="routes-title">Popular Routes &amp; Distance</h2>
+      </div>
+      <div class="routes">
+        @for (route of routes; track route.destination) {
+          <a class="route" target="_blank" rel="noopener noreferrer" [href]="route.url">
+            <span class="pin" aria-hidden="true">📍</span>
+            <span class="route-text">
+              <b>Thakurganj → {{ route.destination }}</b>
+              <small>{{ route.distance }} | {{ route.duration }} (by road)</small>
+            </span>
+            <span class="arrow" aria-hidden="true">›</span>
+          </a>
+        }
+      </div>
+    </article>
+  </section>
+
+  <section class="directory" id="places" aria-labelledby="listing-title">
+    <div class="dir-top">
+      <div class="heading compact">
+        <span class="h-icon" aria-hidden="true">📍</span>
+        <h2 id="listing-title">Transportation Places</h2>
+        <span class="count">{{ places().length }} {{ places().length === 1 ? 'place' : 'places' }} found</span>
+      </div>
+      <div class="controls">
+        <input
+          class="search"
+          type="search"
+          aria-label="Search transportation places"
+          placeholder="🔍 Search transportation places..."
+          [value]="query()"
+          (input)="onSearch($event)"
+        />
+        <button type="button" class="outline" (click)="scrollTo('map')">🗺️ Map View</button>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <div class="filters" role="group" aria-label="Transportation filters">
+        @for (item of filters; track item.key) {
+          <button
+            type="button"
+            [class.selected]="filter() === item.key"
+            [attr.aria-pressed]="filter() === item.key"
+            (click)="filter.set(item.key)"
+          >
+            {{ item.label }} ({{ item.count }})
+          </button>
+        }
+      </div>
+      <label class="sort">
+        Sort by:
+        <select (change)="onSort($event)">
+          <option value="relevance">Relevance</option>
+          <option value="name">Name A–Z</option>
+          <option value="category">Category</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="places-grid" aria-live="polite">
+      @for (place of places(); track place.name) {
+        <article class="card place">
+          <div class="photo">
+            <img [src]="place.image" [alt]="place.name" loading="lazy" />
+            <button
+              type="button"
+              class="heart"
+              [class.saved]="saved().has(place.name)"
+              [attr.aria-pressed]="saved().has(place.name)"
+              [attr.aria-label]="'Save ' + place.name"
+              (click)="toggleSaved(place.name)"
+            >
+              {{ saved().has(place.name) ? '♥' : '♡' }}
+            </button>
+          </div>
+          <div class="body">
+            <div class="name">
+              <span class="cat-icon small {{ place.category }}" aria-hidden="true">{{ place.icon }}</span>
+              <h3>{{ place.name }} <span class="verified" title="Listed place">✔</span></h3>
+            </div>
+            <p class="meta">{{ place.type }}</p>
+            <p class="meta">📍 {{ place.address }}</p>
+            <p class="desc">{{ place.description }}</p>
+            <div class="actions">
+              <button type="button" class="btn" (click)="openDetail(place.category)">View Details</button>
+              <a class="btn secondary" target="_blank" rel="noopener noreferrer" [href]="place.directions">
+                Get Directions
+              </a>
+            </div>
+          </div>
+        </article>
+      } @empty {
+        <div class="empty">No matching transportation places. Try another search or filter.</div>
+      }
+    </div>
+  </section>
+</main>
+
+@if (selected(); as detail) {
+  <div class="modal-backdrop" role="presentation" (click)="closeDetail()">
+    <section
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      tabindex="-1"
+      (click)="$event.stopPropagation()"
+    >
+      <header>
+        <h2 id="modal-title">{{ detail.icon }} {{ detail.title }}</h2>
+        <button type="button" aria-label="Close details" (click)="closeDetail()">×</button>
+      </header>
+      <img [src]="detail.image" [alt]="detail.title" />
+      <p>{{ detail.detail }}</p>
+      <div class="modal-actions">
+        @for (link of detail.links; track link.url) {
+          <a class="btn secondary" target="_blank" rel="noopener noreferrer" [href]="link.url">{{ link.label }} ↗</a>
+        }
+        <button type="button" class="btn" (click)="showCategory(detail.key); closeDetail()">See places</button>
+      </div>
+    </section>
+  </div>
+}
