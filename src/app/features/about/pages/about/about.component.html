@@ -38,29 +38,40 @@
 
   <div class="about-content about-container">
     <section class="welcome" aria-labelledby="welcome-title">
-      <div class="welcome-image">
-        <img
-          src="/images/landscape.webp"
-          alt="Green landscape in the Thakurganj region"
-          loading="lazy"
-        />
+      <div class="welcome-main">
+        <div>
+          <p class="eyebrow">Welcome to Thakurganj · Our hometown</p>
+          <h2 id="welcome-title">A small town.<br /><span>A big heart.</span></h2>
+        </div>
+        <div class="welcome-description">
+          <p>
+            Thakurganj is a town in Bihar's Kishanganj district, close to West Bengal and the Nepal
+            border region.
+          </p>
+          <p>
+            Known for its green surroundings, tea-growing areas, lively markets and close-knit
+            communities, it is a distinctive part of Seemanchal.
+          </p>
+        </div>
       </div>
-      <div class="welcome-copy">
-        <p class="eyebrow">Welcome to Thakurganj</p>
-        <h2 id="welcome-title">A small town with a big heart.</h2>
-        <p>
-          Thakurganj is a town in the Kishanganj district of Bihar, in the northeastern part of the
-          state, close to West Bengal and the Nepal border region.
-        </p>
-        <p>
-          Known for its green surroundings, agricultural landscape, tea-growing areas, local markets
-          and close-knit communities, Thakurganj is a distinctive part of the Seemanchal region.
-        </p>
-        <p>
-          Thakurganj Connect brings useful information about our hometown together in one
-          easy-to-use place.
-        </p>
-      </div>
+      <ul class="welcome-facts" aria-label="Thakurganj highlights">
+        <li>
+          <span class="fact-icon" aria-hidden="true">📍</span>
+          <div><strong>Our location</strong><small>Kishanganj, Bihar</small></div>
+        </li>
+        <li>
+          <span class="fact-icon" aria-hidden="true">🍃</span>
+          <div><strong>Our landscape</strong><small>Green fields and tea-growing areas</small></div>
+        </li>
+        <li>
+          <span class="fact-icon" aria-hidden="true">🤝</span>
+          <div><strong>Our community</strong><small>People, markets and traditions</small></div>
+        </li>
+      </ul>
+      <p class="welcome-note">
+        <strong>Thakurganj Connect</strong> brings useful hometown information together in one
+        easy-to-use place.
+      </p>
     </section>
 
     <div class="discover" id="discover">
@@ -226,7 +237,6 @@
         <nav class="cta-links" aria-label="Explore Thakurganj">
           <a routerLink="/businesses">Find local businesses <span aria-hidden="true">→</span></a>
           <a routerLink="/categories">Browse categories <span aria-hidden="true">→</span></a>
-          <a routerLink="/places">Explore local places <span aria-hidden="true">→</span></a>
         </nav>
       </div>
       <a class="button" routerLink="/my/business/new"

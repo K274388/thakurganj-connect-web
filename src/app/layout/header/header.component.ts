@@ -20,7 +20,6 @@ import { LucideMenu, LucideX } from '@lucide/angular';
         <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="menuOpen.set(false)">Home</a>
         <a routerLink="/about" routerLinkActive="active" (click)="menuOpen.set(false)">About Thakurganj</a>
         <a routerLink="/businesses" routerLinkActive="active" (click)="menuOpen.set(false)">Businesses</a>
-        <a routerLink="/places" routerLinkActive="active" (click)="menuOpen.set(false)">Places</a>
         <a routerLink="/announcements" routerLinkActive="active" (click)="menuOpen.set(false)">News</a>
         <a routerLink="/map" routerLinkActive="active" (click)="menuOpen.set(false)">Map</a>
         <a class="cta" routerLink="/my/business/new" (click)="menuOpen.set(false)">+ Add Business</a>

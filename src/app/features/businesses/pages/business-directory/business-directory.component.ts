@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { LucideX } from '@lucide/angular';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Meta } from '@angular/platform-browser';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
@@ -16,7 +17,7 @@ const PAGE_SIZE = 12;
 @Component({
   selector: 'app-business-directory',
   standalone: true,
-  imports: [RouterLink, PaginationComponent],
+  imports: [RouterLink, PaginationComponent, LucideX],
   templateUrl: './business-directory.component.html',
   styleUrl: './business-directory.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,6 +42,19 @@ export class BusinessDirectoryComponent {
   readonly filterOptions = computed(() => ({
     subcategories: getActiveSubcategories(this.selectedCategoryData()),
   }));
+  /** Active businesses in the selected category (and area), counted per subcategory. */
+  readonly subcategoryCounts = computed(() => {
+    const counts = new Map<string, number>();
+    let total = 0;
+    for (const business of this.activeBusinesses()) {
+      if (business.categorySlug !== this.selectedCategory()) continue;
+      if (this.selectedArea() && this.slug(business.area) !== this.selectedArea()) continue;
+      total++;
+      const slug = business.subcategorySlug;
+      if (slug) counts.set(slug, (counts.get(slug) ?? 0) + 1);
+    }
+    return { total, counts };
+  });
   readonly resultTitle = computed(
     () => this.subcategoryLabel() || this.categoryLabel() || 'Local businesses',
   );
@@ -118,6 +132,10 @@ export class BusinessDirectoryComponent {
       search: null,
       page: null,
     });
+  }
+
+  protected clearCategory(): void {
+    void this.updateQuery({ category: null, subcategory: null, page: null });
   }
 
   protected setSubcategory(subcategory: string): void {

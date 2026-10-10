@@ -52,7 +52,7 @@ describe('AboutComponent', () => {
     expect(page.querySelectorAll('.story-card .story-icon')).toHaveLength(6);
   });
 
-  it('links visitors to local businesses, categories, and places', () => {
+  it('links visitors to local businesses, and categories', () => {
     const fixture = TestBed.createComponent(AboutComponent);
     fixture.detectChanges();
     const page = fixture.nativeElement as HTMLElement;
@@ -61,6 +61,5 @@ describe('AboutComponent', () => {
       'Find local businesses',
     );
     expect(page.querySelector('a[href="/categories"]')?.textContent).toContain('Browse categories');
-    expect(page.querySelector('a[href="/places"]')?.textContent).toContain('Explore local places');
   });
 });

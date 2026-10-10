@@ -12,9 +12,17 @@ import { AnnouncementBarItem } from '../../shared/models/announcement-bar-item';
           @for (item of items(); track item.id; let last = $last) {
             <span class="item">
               @if (item.link) {
-                <a [href]="item.link">{{ item.title }}@if (item.date) { — {{ item.date }} }</a>
+                <a [href]="item.link">
+                  <span>{{ item.title }}</span>
+                  @if (item.hindiTitle) { <span lang="hi">{{ item.hindiTitle }}</span> }
+                  @if (item.date) { <span>— {{ item.date }}</span> }
+                </a>
               } @else {
-                <span>{{ item.title }}@if (item.date) { — {{ item.date }} }</span>
+                <span class="item-content">
+                  <span>{{ item.title }}</span>
+                  @if (item.hindiTitle) { <span lang="hi">{{ item.hindiTitle }}</span> }
+                  @if (item.date) { <span>— {{ item.date }}</span> }
+                </span>
               }
             </span>
             @if (!last) { <span class="separator" aria-hidden="true">/</span> }
@@ -29,6 +37,7 @@ import { AnnouncementBarItem } from '../../shared/models/announcement-bar-item';
     .label { flex: 0 0 auto; color: var(--tk-yellow); font-size: 0.7rem; font-weight: 850; letter-spacing: 0.12em; }
     .items { display: flex; min-width: 0; align-items: center; gap: 0.8rem; overflow-x: auto; white-space: nowrap; scrollbar-width: thin; }
     .item { flex: 0 0 auto; }
+    .item > a, .item-content { display: inline-flex; align-items: baseline; gap: 0.6rem; }
     a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
     .separator { color: var(--tk-yellow); }
     @media (max-width: 767px) { .announcement { gap: 0.65rem; font-size: 0.78rem; } }
@@ -36,6 +45,6 @@ import { AnnouncementBarItem } from '../../shared/models/announcement-bar-item';
 })
 export class AnnouncementBarComponent {
   readonly items = input<AnnouncementBarItem[]>([
-    { id: 'welcome', title: 'Welcome to Thakurganj Connect' },
+    { id: 'welcome', title: 'Welcome to Thakurganj Connect', hindiTitle: 'अपने शहर की अपनी जानकारी' },
   ]);
 }

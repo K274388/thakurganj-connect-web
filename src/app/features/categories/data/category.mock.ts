@@ -12,6 +12,17 @@ function subcategories(categoryId: number, items: [slug: string, name: string][]
   }));
 }
 
+const HINDI_NAMES: Record<string, string> = {
+  'food-restaurants': 'खान-पान',
+  shopping: 'खरीदारी',
+  health: 'स्वास्थ्य',
+  services: 'सेवाएं',
+  education: 'शिक्षा',
+  automobile: 'वाहन',
+  'home-services': 'घरेलू सेवाएं',
+  finance: 'बैंक और वित्त',
+};
+
 function category(
   id: number,
   slug: string,
@@ -25,6 +36,7 @@ function category(
     id,
     slug,
     name,
+    hindiName: HINDI_NAMES[slug],
     description,
     icon,
     visualVariant,

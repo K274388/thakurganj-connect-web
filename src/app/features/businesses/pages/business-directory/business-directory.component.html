@@ -43,31 +43,40 @@
         >
           <span class="emoji" aria-hidden="true">{{ categoryIcon(category.name) }}</span>
           <strong>{{ category.name }}</strong>
+          @if (category.hindiName) {
+            <span class="hindi" lang="hi">{{ category.hindiName }}</span>
+          }
           <small>{{ subcategoryPreview(category) }}</small>
         </button>
       }
     </div>
     @if (selectedCategoryData(); as category) {
-      <div class="subpanel">
-        <h3>{{ categoryIcon(category.name) }} {{ category.name }} — Choose a type</h3>
-        <p>Choose a type below to find the right shop or service.</p>
+      <div class="subpanel" role="group" aria-labelledby="subcategory-title">
+        <div class="subpanel-head">
+          <h3 id="subcategory-title">{{ category.name }} · Choose a subcategory</h3>
+          <button class="clear" type="button" (click)="clearCategory()">
+            <svg lucideX aria-hidden="true"></svg> Clear category
+          </button>
+        </div>
         <div class="subgrid">
           <button
             type="button"
             class="sub"
             [class.active]="!selectedSubcategory()"
+            [attr.aria-pressed]="!selectedSubcategory()"
             (click)="setSubcategory('')"
           >
-            All {{ category.name }} →
+            All {{ category.name }} ({{ subcategoryCounts().total }})
           </button>
           @for (subcategory of filterOptions().subcategories; track subcategory.slug) {
             <button
               type="button"
               class="sub"
               [class.active]="selectedSubcategory() === subcategory.slug"
+              [attr.aria-pressed]="selectedSubcategory() === subcategory.slug"
               (click)="setSubcategory(subcategory.slug)"
             >
-              {{ subcategory.name }} →
+              {{ subcategory.name }} ({{ subcategoryCounts().counts.get(subcategory.slug) ?? 0 }})
             </button>
           }
         </div>

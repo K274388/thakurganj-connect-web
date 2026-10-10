@@ -16,6 +16,8 @@ export interface BusinessCategory {
   id: number;
   slug: string;
   name: string;
+  /** Hindi display name shown alongside `name`. */
+  hindiName?: string;
   description?: string;
   icon?: string;
   visualVariant?: CategoryVisualVariant;

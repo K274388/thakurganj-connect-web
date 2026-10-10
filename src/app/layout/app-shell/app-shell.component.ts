@@ -25,7 +25,7 @@ import { AnnouncementBarItem } from '../../shared/models/announcement-bar-item';
 })
 export class AppShellComponent {
   readonly announcements = input<AnnouncementBarItem[]>([
-    { id: 'welcome', title: 'Welcome to Thakurganj Connect' },
+    { id: 'welcome', title: 'Welcome to Thakurganj Connect', hindiTitle: 'अपने शहर की अपनी जानकारी' },
   ]);
   readonly footerText = input('Local information, shared by our community.');
   readonly footerLinks = input<FooterLink[]>([

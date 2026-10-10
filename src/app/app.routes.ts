@@ -36,11 +36,8 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/categories/categories.routes').then((module) => module.CATEGORIES_ROUTES),
       },
-      {
-        path: 'places',
-        loadChildren: () =>
-          import('./features/places/places.routes').then((module) => module.PLACES_ROUTES),
-      },
+      { path: 'places', pathMatch: 'full', redirectTo: '/' },
+      { path: 'places/:slug', redirectTo: '/' },
       {
         path: 'transportation',
         loadComponent: () =>
@@ -80,6 +77,18 @@ export const routes: Routes = [
           description:
             'Discover Thakurganj’s geography, history, culture, agriculture and community with Thakurganj Connect.',
         },
+      },
+      { path: 'legal', pathMatch: 'full', redirectTo: 'legal/terms' },
+      { path: 'terms', redirectTo: 'legal/terms' },
+      { path: 'privacy', redirectTo: 'legal/privacy' },
+      {
+        path: 'legal/:section',
+        loadComponent: () =>
+          import('./features/legal/pages/legal/legal.component').then(
+            (module) => module.LegalComponent,
+          ),
+        // The component sets the title and description for the selected section.
+        title: 'Policies | Thakurganj Connect',
       },
       page('emergency', 'Emergency information', 'Emergency contacts for Thakurganj.'),
       page('login', 'Log in', 'Log in to your Thakurganj Connect account.'),

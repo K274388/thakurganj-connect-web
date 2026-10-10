@@ -1,0 +1,124 @@
+<div class="legal-page">
+  <section class="legal-hero" aria-labelledby="legal-title">
+    <div class="legal-container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li><a routerLink="/">Home</a></li>
+          <li>Policies</li>
+          <li aria-current="page">{{ active().label }}</li>
+        </ol>
+      </nav>
+      <p class="eyebrow">Policies</p>
+      <h1 id="legal-title">Terms, Privacy &amp; Disclaimer</h1>
+      <p class="intro">Simple policies for a community information platform.</p>
+      <p class="note">
+        Thakurganj Connect is an independent community information service. Listings, photographs
+        and other information may be incomplete, outdated or inaccurate. Please verify important
+        details directly with the relevant provider or authority.
+      </p>
+    </div>
+  </section>
+
+  <div class="legal-container legal-layout">
+    <nav class="section-nav" aria-label="Policy sections">
+      @for (item of sections; track item.id) {
+        <a
+          [routerLink]="['/legal', item.id]"
+          [class.active]="item.id === active().id"
+          [attr.aria-current]="item.id === active().id ? 'page' : null"
+          >{{ item.label }}</a
+        >
+      }
+    </nav>
+
+    <article class="panel" [attr.aria-labelledby]="'section-' + active().id">
+      <header class="panel-head">
+        <div>
+          <h2 [id]="'section-' + active().id">{{ active().title }}</h2>
+          <p class="summary">{{ active().summary }}</p>
+          @if (active().id !== 'report') {
+            <p class="meta">Effective date: <strong>{{ effectiveDate }}</strong></p>
+          }
+        </div>
+        @if (active().clauses.length) {
+          <button class="toggle-all" type="button" (click)="toggleAll()" [attr.aria-pressed]="allOpen()">
+            {{ allOpen() ? 'Collapse all' : 'Expand all' }}
+          </button>
+        }
+      </header>
+
+      @if (active().clauses.length) {
+        <ol class="clauses">
+          @for (clause of active().clauses; track clause.id; let index = $index) {
+            <li>
+              <details [open]="isOpen(clause.id)" (toggle)="onToggle(clause.id, $event)">
+                <summary>
+                  <span class="num" aria-hidden="true">{{ index + 1 }}</span>
+                  <span class="heading">{{ clause.heading }}</span>
+                  <span class="chevron" aria-hidden="true"></span>
+                </summary>
+                <div class="clause-body">
+                  @for (paragraph of clause.body; track $index) {
+                    <p>{{ paragraph }}</p>
+                  }
+                </div>
+              </details>
+            </li>
+          }
+        </ol>
+        <p class="contact">
+          Questions about this policy? Email <a [href]="'mailto:' + email">{{ email }}</a> or
+          <a routerLink="/legal/report">report an issue</a>.
+        </p>
+      } @else {
+        <div class="report">
+          <ul class="guidelines">
+            @for (line of guidelines; track line) {
+              <li>{{ line }}</li>
+            }
+          </ul>
+
+          <form class="report-form" (submit)="$event.preventDefault()" aria-labelledby="report-form-title">
+            <h3 id="report-form-title">Prepare your report</h3>
+            <p class="hint">This opens your email app with the details filled in. Nothing is sent until you press send.</p>
+            <label>
+              <span>What is the issue?</span>
+              <select [value]="issueType()" (change)="issueType.set(valueOf($event))">
+                @for (type of issueTypes; track type) {
+                  <option [value]="type">{{ type }}</option>
+                }
+              </select>
+            </label>
+            <label>
+              <span>Link to the listing or page <em>(optional)</em></span>
+              <input
+                type="url"
+                inputmode="url"
+                placeholder="Paste the page link here"
+                [value]="pageUrl()"
+                (input)="pageUrl.set(valueOf($event))"
+              />
+            </label>
+            <label>
+              <span>Describe the problem</span>
+              <textarea
+                rows="4"
+                placeholder="What is incorrect, or why should it be removed?"
+                [value]="details()"
+                (input)="details.set(valueOf($event))"
+              ></textarea>
+            </label>
+            <a class="button" [href]="reportHref()">Open email to send report <span aria-hidden="true">→</span></a>
+            <p class="hint">
+              Or email us directly at <a [href]="'mailto:' + email">{{ email }}</a>.
+            </p>
+          </form>
+        </div>
+        <p class="contact">
+          We review good-faith reports and take appropriate steps, but cannot promise a specific
+          resolution or response time.
+        </p>
+      }
+    </article>
+  </div>
+</div>

@@ -161,28 +161,82 @@
 }
 
 .about-content {
-  padding-block: clamp(3rem, 7vw, 5rem);
+  padding-block: 0;
 }
 .welcome {
+  padding: clamp(1.4rem, 4vw, 2.9rem);
+  border: 1px solid var(--about-line);
+  border-radius: 1.25rem;
+  background: #fff;
+}
+.welcome-main {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: 0.9fr 1.1fr;
   align-items: center;
-  gap: clamp(1.5rem, 4vw, 2.8rem);
+  gap: clamp(1rem, 4vw, 3.25rem);
 }
-.welcome-image {
-  min-height: 23rem;
-  overflow: hidden;
-  border-radius: 1.5rem;
-  background: #dbe7b0;
-}
-.welcome-image img {
-  width: 100%;
-  height: 100%;
-  min-height: inherit;
-  object-fit: cover;
-}
-.welcome-copy {
+.welcome-main > div {
   min-width: 0;
+}
+.welcome h2 span {
+  color: var(--about-green);
+}
+.welcome-description {
+  color: var(--about-muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+.welcome-description p {
+  margin: 0 0 0.55rem;
+}
+.welcome-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 1.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.welcome-facts li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.9rem;
+  border: 1px solid var(--about-line);
+  border-radius: 0.75rem;
+  background: #f8fbf8;
+}
+.fact-icon {
+  display: grid;
+  flex: 0 0 2.4rem;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.6rem;
+  background: #e6f4e9;
+  font-size: 1.25rem;
+}
+.welcome-facts strong {
+  display: block;
+  font-size: 0.82rem;
+}
+.welcome-facts small {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--about-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+.welcome-note {
+  margin: 1.25rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--about-line);
+  color: var(--about-muted);
+  font-size: 0.82rem;
+}
+.welcome-note strong {
+  color: var(--about-green);
 }
 .welcome h2,
 .section-heading h2,
@@ -195,19 +249,14 @@
 .welcome h2 {
   font-size: clamp(1.9rem, 3.5vw, 2.6rem);
 }
-.welcome-copy > p:not(.eyebrow) {
-  color: var(--about-muted);
-  line-height: 1.7;
-}
 .discover {
-  margin-top: clamp(3.5rem, 7vw, 5rem);
-  padding-top: clamp(3rem, 6vw, 4.5rem);
-  border-top: 1px solid var(--about-line);
+  margin-top: 0;
+  padding-block: 1.5rem;
   scroll-margin-top: 1.5rem;
 }
 .section-heading {
   max-width: 42rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
 }
 .section-heading h2 {
   font-size: clamp(1.9rem, 4vw, 2.7rem);
@@ -303,7 +352,7 @@
   line-height: 1.65;
 }
 .mission-section {
-  padding-block: clamp(3rem, 6vw, 4.5rem);
+  padding-block: 0;
 }
 .mission {
   display: grid;
@@ -342,7 +391,7 @@
   font-weight: 500;
 }
 .cta-section {
-  padding-block: 0 clamp(3rem, 6vw, 4.5rem);
+  padding-block: 0;
 }
 .cta {
   display: flex;
@@ -391,7 +440,8 @@
     width: min(100% - 32px, 600px);
   }
   .hero-inner,
-  .welcome,
+  .welcome-main,
+  .welcome-facts,
   .mission {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -399,14 +449,15 @@
     gap: 1.75rem;
     padding-block: 2rem 3rem;
   }
-  .welcome {
-    gap: 1.5rem;
+  .welcome-main {
+    gap: 0.5rem;
   }
-  .welcome-image {
-    min-height: 17rem;
+  .welcome-facts {
+    gap: 0.5rem;
+    margin-top: 1.1rem;
   }
-  .welcome-image img {
-    min-height: 17rem;
+  .welcome-facts li {
+    padding: 0.65rem 0.75rem;
   }
   .mission {
     gap: 0.5rem;
