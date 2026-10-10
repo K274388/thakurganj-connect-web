@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideX } from '@lucide/angular';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Meta } from '@angular/platform-browser';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { getBusinessImageArtwork } from '../../../../shared/utils/business-image-artwork';
-import { BUSINESS_CATEGORIES } from '../../../categories/data/category.mock';
+import { CategoryRepository } from '../../../categories/data/category.repository';
 import { BusinessCategory, BusinessSubcategory } from '../../../categories/models/category.models';
 import { getActiveCategories, getActiveSubcategories } from '../../../categories/utils/category.utils';
 import { BusinessRepository } from '../../data/business.repository';
@@ -23,8 +23,11 @@ const PAGE_SIZE = 12;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BusinessDirectoryComponent {
-  readonly businesses = signal<Business[]>(inject(BusinessRepository).getBusinesses());
-  readonly allCategories = signal(BUSINESS_CATEGORIES);
+  private readonly businessRepository = inject(BusinessRepository);
+  private readonly categoryRepository = inject(CategoryRepository);
+
+  readonly businesses = linkedSignal<Business[]>(() => this.businessRepository.businesses());
+  readonly allCategories = linkedSignal(() => this.categoryRepository.categories());
   readonly categories = computed(() => getActiveCategories(this.allCategories()));
   readonly searchTerm = signal('');
   readonly selectedCategory = signal('');

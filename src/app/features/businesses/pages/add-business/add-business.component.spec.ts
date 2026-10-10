@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { By, Meta } from '@angular/platform-browser';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { BusinessBasicInfoFormComponent } from '../../components/business-basic-info-form/business-basic-info-form.component';
 import { BusinessFormComponent } from '../../components/business-form/business-form.component';
@@ -339,9 +340,7 @@ describe('AddBusinessComponent', () => {
     });
 
     it('shows a retryable error and keeps data when saving fails', async () => {
-      vi.spyOn(repository(), 'createBusiness').mockImplementationOnce(() => {
-        throw new Error('boom');
-      });
+      vi.spyOn(repository(), 'createBusiness').mockImplementationOnce(() => throwError(() => new Error('boom')));
       fillValid();
       submit();
       expect(page.querySelector('.save-error')!.textContent).toContain(

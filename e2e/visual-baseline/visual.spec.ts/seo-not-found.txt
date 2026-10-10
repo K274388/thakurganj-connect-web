@@ -1,0 +1,18 @@
+{
+  "server": {
+    "title": "Page not found",
+    "description": "Local information for Thakurganj, Bihar. Find businesses, services, places and community updates.",
+    "headings": [
+      "Page not found"
+    ],
+    "cards": 0
+  },
+  "client": {
+    "title": "Page not found",
+    "description": "Local information for Thakurganj, Bihar. Find businesses, services, places and community updates.",
+    "headings": [
+      "Page not found"
+    ],
+    "cards": 0
+  }
+}

@@ -4,7 +4,7 @@ import { getActivePlaceCategories, getFeaturedPlaces } from './place.utils';
 
 describe('place utilities', () => {
   it('returns active categories in display order', () => {
-    const categories = getActivePlaceCategories();
+    const categories = getActivePlaceCategories(PLACE_CATEGORIES);
     expect(categories.length).toBe(9);
     expect(categories.map((category) => category.slug)).toEqual([
       'landmarks',

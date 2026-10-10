@@ -1,5 +1,5 @@
-﻿import { Component, HostListener, computed, inject, signal, viewChild } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+﻿import { Component, DestroyRef, HostListener, computed, inject, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { MockCurrentUserService } from '../../../../core/auth/mock-current-user';
@@ -9,7 +9,7 @@ import { BusinessFormComponent, BusinessSaveState } from '../../components/busin
 import { BUSINESS_UPDATE_SUCCESS_MESSAGE } from '../../components/business-form/business-form.config';
 import { BusinessRepository } from '../../data/business.repository';
 import { HasUnsavedChanges } from '../../guards/unsaved-changes.guard';
-import { UpdateBusinessRequest } from '../../models/business.models';
+import { Business, UpdateBusinessRequest } from '../../models/business.models';
 
 /** Container: routing, ownership check and persistence. The form itself is the shared BusinessForm. */
 @Component({
@@ -23,6 +23,8 @@ export class EditBusinessComponent implements HasUnsavedChanges {
   private readonly repository = inject(BusinessRepository);
   private readonly currentUser = inject(MockCurrentUserService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly owned = this.repository.ownerBusinesses();
   private readonly form = viewChild(BusinessFormComponent);
   private resolveLeave: ((canLeave: boolean) => void) | null = null;
 
@@ -34,7 +36,11 @@ export class EditBusinessComponent implements HasUnsavedChanges {
   readonly saveState = signal<BusinessSaveState>('idle');
   readonly confirmOpen = signal(false);
 
-  readonly business = computed(() => this.repository.businesses().find((item) => String(item.id) === this.id()));
+  /** Own listings (including inactive ones) first, then public ones so another owner's listing reads as forbidden. */
+  readonly business = computed(() => {
+    const matches = (item: Business) => String(item.id) === this.id();
+    return this.owned().find(matches) ?? this.repository.businesses().find(matches);
+  });
   /** The edit form is only ever rendered in the 'ready' state. */
   readonly access = computed<'not-found' | 'forbidden' | 'ready'>(() => {
     const business = this.business();
@@ -61,13 +67,16 @@ export class EditBusinessComponent implements HasUnsavedChanges {
     const business = this.business();
     if (this.saveState() === 'saving' || !business || this.access() !== 'ready') return;
     this.saveState.set('saving');
-    try {
-      this.repository.updateBusiness(business.id, this.currentUser.user().id, request);
-      this.form()?.markPristine();
-      this.saveState.set('success');
-    } catch {
-      this.saveState.set('error');
-    }
+    this.repository
+      .updateBusiness(business.id, this.currentUser.user().id, request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.form()?.markPristine();
+          this.saveState.set('success');
+        },
+        error: () => this.saveState.set('error'),
+      });
   }
 
   protected cancel(): void {

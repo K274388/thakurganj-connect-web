@@ -18,7 +18,7 @@ import { getActivePlaceCategories, getFeaturedPlaces } from '../../../places/uti
             <h2 id="explore-title" class="tk-heading-xl">Explore the town</h2>
           </div>
           <div class="filters" role="group" aria-label="Filter places by category">
-            @for (filter of filters; track filter.slug) {
+            @for (filter of filters(); track filter.slug) {
               <tk-filter-pill [label]="filter.label" [active]="selectedCategory() === filter.slug" (selected)="selectFilter(filter.slug)" />
             }
           </div>
@@ -50,10 +50,10 @@ import { getActivePlaceCategories, getFeaturedPlaces } from '../../../places/uti
 })
 export class ExploreTownComponent {
   private readonly repository = inject(PlaceRepository);
-  protected readonly filters = [
+  protected readonly filters = computed(() => [
     { slug: 'all', label: 'All' },
     ...['landmarks', 'religious', 'markets', 'transportation'].flatMap((slug) => {
-      const category = getActivePlaceCategories().find((item) => item.slug === slug);
+      const category = getActivePlaceCategories(this.repository.categories()).find((item) => item.slug === slug);
       return category
         ? [
             {
@@ -68,9 +68,9 @@ export class ExploreTownComponent {
           ]
         : [];
     }),
-  ];
+  ]);
   protected readonly selectedCategory = signal('all');
-  protected readonly places = computed(() => getFeaturedPlaces(this.repository.getPlaces()));
+  protected readonly places = computed(() => getFeaturedPlaces(this.repository.places()));
   protected readonly filteredPlaces = computed(() => {
     const category = this.selectedCategory();
     return category === 'all' ? this.places() : this.places().filter((place) => place.categorySlug === category);

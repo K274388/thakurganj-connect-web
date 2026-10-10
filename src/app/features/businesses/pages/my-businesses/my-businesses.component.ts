@@ -1,6 +1,5 @@
-﻿import { Component, computed, inject } from '@angular/core';
+﻿import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MockCurrentUserService } from '../../../../core/auth/mock-current-user';
 import { markPageAsPrivate } from '../../../../core/seo/private-page';
 import { ImagePlaceholderComponent } from '../../../../shared/components/image-placeholder/image-placeholder.component';
 import { BusinessRepository } from '../../data/business.repository';
@@ -13,12 +12,8 @@ import { BusinessRepository } from '../../data/business.repository';
   styleUrl: './my-businesses.component.scss',
 })
 export class MyBusinessesComponent {
-  private readonly repository = inject(BusinessRepository);
-  private readonly currentUser = inject(MockCurrentUserService);
-
-  protected readonly businesses = computed(() =>
-    this.repository.businesses().filter((business) => business.ownerId === this.currentUser.user().id),
-  );
+  /** The current owner's listings, including inactive ones. */
+  protected readonly businesses = inject(BusinessRepository).ownerBusinesses();
 
   constructor() {
     markPageAsPrivate();

@@ -1,0 +1,20 @@
+{
+  "server": {
+    "title": "Privacy Policy | Thakurganj Connect",
+    "description": "What information we receive, how we use it and how to ask for changes.",
+    "headings": [
+      "Terms, Privacy &amp; Disclaimer",
+      "Privacy Policy"
+    ],
+    "cards": 1
+  },
+  "client": {
+    "title": "Privacy Policy | Thakurganj Connect",
+    "description": "What information we receive, how we use it and how to ask for changes.",
+    "headings": [
+      "Terms, Privacy & Disclaimer",
+      "Privacy Policy"
+    ],
+    "cards": 1
+  }
+}

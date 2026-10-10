@@ -40,10 +40,15 @@ export class FakePopup {
 class FakeControl {}
 class FakeBounds { points: number[][] = []; extend(p: number[]) { this.points.push(p); } }
 
-export function fakeLibrary(): MapLibreModule {
+/** Clears recorded instances; call before tests that assert on them without loading the library. */
+export function resetMapFakes(): void {
   FakeMap.instances = [];
   FakeMarker.instances = [];
   FakePopup.instances = [];
+}
+
+export function fakeLibrary(): MapLibreModule {
+  resetMapFakes();
   return {
     Map: FakeMap,
     Marker: FakeMarker,

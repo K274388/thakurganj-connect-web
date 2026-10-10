@@ -3,6 +3,7 @@ import { MockCurrentUserService, MOCK_CURRENT_USER } from '../../../core/auth/mo
 import { BUSINESS_CATEGORIES } from '../../categories/data/category.mock';
 import { CreateBusinessRequest } from '../models/business.models';
 import { BusinessRepository } from './business.repository';
+import { emitted } from '../../../core/testing/emitted';
 
 const request: CreateBusinessRequest = {
   name: 'Demo New Shop',
@@ -23,7 +24,7 @@ describe('BusinessRepository', () => {
 
   it('creates an ACTIVE business owned by the current mock user with a new id', () => {
     const before = repository.getBusinesses().length;
-    const created = repository.createBusiness(request);
+    const created = emitted(repository.createBusiness(request));
     expect(created.status).toBe('ACTIVE');
     expect(created.ownerId).toBe(MOCK_CURRENT_USER.id);
     expect(created.categoryName).toBe('Shopping');
@@ -35,14 +36,14 @@ describe('BusinessRepository', () => {
   });
 
   it('never assigns an approval or pending status', () => {
-    const created = repository.createBusiness(request);
+    const created = emitted(repository.createBusiness(request));
     expect(['ACTIVE', 'INACTIVE']).toContain(created.status);
     expect(JSON.stringify(created).toLowerCase()).not.toMatch(/pending|approv|review/);
   });
 
   it('assigns the owner from the centralized current user', () => {
     TestBed.inject(MockCurrentUserService).user.set({ id: 42, name: 'Other' });
-    expect(repository.createBusiness(request).ownerId).toBe(42);
+    expect(emitted(repository.createBusiness(request)).ownerId).toBe(42);
   });
 
   it('returns businesses by owner', () => {
@@ -53,8 +54,8 @@ describe('BusinessRepository', () => {
   });
 
   it('rejects unknown categories and subcategories', () => {
-    expect(() => repository.createBusiness({ ...request, categoryId: 999 })).toThrow();
-    expect(() => repository.createBusiness({ ...request, subcategoryId: 999 })).toThrow();
+    expect(() => emitted(repository.createBusiness({ ...request, categoryId: 999 }))).toThrow();
+    expect(() => emitted(repository.createBusiness({ ...request, subcategoryId: 999 }))).toThrow();
     expect(BUSINESS_CATEGORIES.length).toBeGreaterThan(0);
   });
 });

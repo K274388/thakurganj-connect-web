@@ -1,8 +1,9 @@
-import { Component, computed, DestroyRef, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { signal } from '@angular/core';
+import { Observable, Subject, catchError, map, merge, of, switchMap } from 'rxjs';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../../../shared/components/error-state/error-state.component';
 import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
@@ -44,7 +45,8 @@ export class BusinessDetailsComponent {
   private readonly router = inject(Router);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
-  private readonly destroyRef = inject(DestroyRef);
+  /** Retries re-request the current id; switchMap cancels a request that is still in flight. */
+  private readonly retries = new Subject<string>();
 
   protected readonly state = signal<BusinessDetailsState>({ status: 'loading' });
   protected readonly reportNotice = signal(false);
@@ -83,32 +85,36 @@ export class BusinessDetailsComponent {
   );
 
   constructor() {
-    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
-      this.load(params.get('id') ?? '');
-    });
+    merge(this.route.paramMap.pipe(map((params) => params.get('id') ?? '')), this.retries)
+      .pipe(
+        switchMap((id) => this.fetch(id)),
+        takeUntilDestroyed(),
+      )
+      .subscribe((result) => this.apply(result));
   }
 
-  protected load(id: string): void {
-    try {
-      const business = this.repository.getBusiness(id);
-      if (!business) {
-        this.state.set({ status: 'notFound' });
-        this.updateSeo('Business not found', '');
-      } else if (business.status !== 'ACTIVE') {
-        this.state.set({ status: 'inactive' });
-        this.updateSeo('Business unavailable', '');
-      } else {
-        this.state.set({ status: 'success', business });
-        this.updateSeo(business.name, business.shortDescription);
-      }
-    } catch {
+  private fetch(id: string): Observable<Business | undefined | 'error'> {
+    return this.repository.loadBusiness(id).pipe(catchError(() => of('error' as const)));
+  }
+
+  private apply(business: Business | undefined | 'error'): void {
+    if (business === 'error') {
       this.state.set({ status: 'error' });
+    } else if (!business) {
+      this.state.set({ status: 'notFound' });
+      this.updateSeo('Business not found', '');
+    } else if (business.status !== 'ACTIVE') {
+      this.state.set({ status: 'inactive' });
+      this.updateSeo('Business unavailable', '');
+    } else {
+      this.state.set({ status: 'success', business });
+      this.updateSeo(business.name, business.shortDescription);
     }
   }
 
   protected retry(): void {
     this.state.set({ status: 'loading' });
-    this.load(this.route.snapshot.paramMap.get('id') ?? '');
+    this.retries.next(this.route.snapshot.paramMap.get('id') ?? '');
   }
 
   protected goToDirectory(): void {

@@ -1,0 +1,20 @@
+{
+  "server": {
+    "title": "Terms &amp; Conditions | Thakurganj Connect",
+    "description": "The rules for using Thakurganj Connect and submitting listings.",
+    "headings": [
+      "Terms, Privacy &amp; Disclaimer",
+      "Terms &amp; Conditions"
+    ],
+    "cards": 1
+  },
+  "client": {
+    "title": "Terms & Conditions | Thakurganj Connect",
+    "description": "The rules for using Thakurganj Connect and submitting listings.",
+    "headings": [
+      "Terms, Privacy & Disclaimer",
+      "Terms & Conditions"
+    ],
+    "cards": 1
+  }
+}

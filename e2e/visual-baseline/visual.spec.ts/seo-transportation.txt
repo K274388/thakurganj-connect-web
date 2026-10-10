@@ -1,0 +1,24 @@
+{
+  "server": {
+    "title": "Transportation in Thakurganj | Thakurganj Connect",
+    "description": "Local information for Thakurganj, Bihar. Find businesses, services, places and community updates.",
+    "headings": [
+      "Transportation",
+      "Travel easy. Explore Thakurganj and beyond.",
+      "How to Reach Thakurganj",
+      "Key Transportation Points on Map"
+    ],
+    "cards": 13
+  },
+  "client": {
+    "title": "Transportation in Thakurganj | Thakurganj Connect",
+    "description": "Local information for Thakurganj, Bihar. Find businesses, services, places and community updates.",
+    "headings": [
+      "Transportation",
+      "Travel easy. Explore Thakurganj and beyond.",
+      "How to Reach Thakurganj",
+      "Key Transportation Points on Map"
+    ],
+    "cards": 13
+  }
+}

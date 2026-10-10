@@ -1,9 +1,8 @@
-import { PLACE_CATEGORIES } from '../data/place-category.mock';
 import { PlaceCategory } from '../models/place-category.models';
 import { Place } from '../models/place.models';
 
-export function getActivePlaceCategories(): PlaceCategory[] {
-  return PLACE_CATEGORIES.filter((category) => category.active).sort(
+export function getActivePlaceCategories(categories: PlaceCategory[]): PlaceCategory[] {
+  return categories.filter((category) => category.active).sort(
     (a, b) => a.displayOrder - b.displayOrder,
   );
 }

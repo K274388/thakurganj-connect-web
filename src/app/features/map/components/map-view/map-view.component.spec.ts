@@ -2,7 +2,7 @@ import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MapItem } from '../../models/map-item.models';
-import { FakeMap, FakeMarker, FakePopup, fakeLibrary } from '../../testing/map-fakes';
+import { FakeMap, FakeMarker, FakePopup, fakeLibrary, resetMapFakes } from '../../testing/map-fakes';
 import { MAP_LIBRARY_LOADER } from './map-library';
 import { MapViewComponent } from './map-view.component';
 
@@ -46,6 +46,8 @@ describe('MapViewComponent', () => {
   }
 
   beforeEach(() => {
+    // Instances are static, so clear what earlier specs in this worker created.
+    resetMapFakes();
     loader = vi.fn(async () => fakeLibrary());
   });
 

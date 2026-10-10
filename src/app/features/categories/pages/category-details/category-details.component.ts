@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, linkedSignal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
@@ -7,7 +7,7 @@ import { BusinessCardComponent } from '../../../../shared/components/business-ca
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { BusinessCtaComponent } from '../../../home/components/business-cta/business-cta.component';
 import { BusinessRepository } from '../../../businesses/data/business.repository';
-import { BUSINESS_CATEGORIES } from '../../data/category.mock';
+import { CategoryRepository } from '../../data/category.repository';
 import {
   findCategoryBySlug,
   formatBusinessCount,
@@ -33,8 +33,11 @@ export class CategoryDetailsComponent {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
 
-  readonly allCategories = signal(BUSINESS_CATEGORIES);
-  readonly businesses = signal(inject(BusinessRepository).getBusinesses());
+  private readonly categoryRepository = inject(CategoryRepository);
+  private readonly businessRepository = inject(BusinessRepository);
+
+  readonly allCategories = linkedSignal(() => this.categoryRepository.categories());
+  readonly businesses = linkedSignal(() => this.businessRepository.businesses());
   readonly previewLimit = CATEGORY_PREVIEW_LIMIT;
   protected readonly formatCount = formatBusinessCount;
 

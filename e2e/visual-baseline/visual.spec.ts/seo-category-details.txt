@@ -1,0 +1,24 @@
+{
+  "server": {
+    "title": "Food &amp; Restaurants in Thakurganj | Thakurganj Connect",
+    "description": "Restaurants, food shops and local places to eat. Find Food &amp; Restaurants businesses in Thakurganj.",
+    "headings": [
+      "Food &amp; Restaurants",
+      "Browse by type",
+      "Businesses",
+      "Got a shop? Put it on the map — free."
+    ],
+    "cards": 4
+  },
+  "client": {
+    "title": "Food & Restaurants in Thakurganj | Thakurganj Connect",
+    "description": "Restaurants, food shops and local places to eat. Find Food & Restaurants businesses in Thakurganj.",
+    "headings": [
+      "Food & Restaurants",
+      "Browse by type",
+      "Businesses",
+      "Got a shop? Put it on the map — free."
+    ],
+    "cards": 4
+  }
+}

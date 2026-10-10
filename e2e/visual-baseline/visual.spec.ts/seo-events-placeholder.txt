@@ -1,0 +1,18 @@
+{
+  "server": {
+    "title": "Events",
+    "description": "Local information for Thakurganj, Bihar. Find businesses, services, places and community updates.",
+    "headings": [
+      "Events"
+    ],
+    "cards": 0
+  },
+  "client": {
+    "title": "Events",
+    "description": "Local information for Thakurganj, Bihar. Find businesses, services, places and community updates.",
+    "headings": [
+      "Events"
+    ],
+    "cards": 0
+  }
+}

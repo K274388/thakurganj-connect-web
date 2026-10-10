@@ -1,0 +1,21 @@
+{
+  "server": {
+    "title": "Map of Thakurganj | Businesses &amp; Places | Thakurganj Connect",
+    "description": "Explore businesses, landmarks, markets, transportation and useful places across Thakurganj on an interactive map.",
+    "headings": [
+      "Explore Thakurganj on the map",
+      "Results"
+    ],
+    "cards": 0
+  },
+  "client": {
+    "title": "Map of Thakurganj | Businesses & Places | Thakurganj Connect",
+    "description": "Explore businesses, landmarks, markets, transportation and useful places across Thakurganj on an interactive map.",
+    "headings": [
+      "Explore Thakurganj on the map",
+      "We couldn't load the map.",
+      "Results"
+    ],
+    "cards": 0
+  }
+}

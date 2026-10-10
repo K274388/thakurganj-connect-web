@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Meta } from '@angular/platform-browser';
 import { CategoryCardComponent } from '../../../../shared/components/category-card/category-card.component';
 import { BusinessCtaComponent } from '../../../home/components/business-cta/business-cta.component';
 import { BusinessRepository } from '../../../businesses/data/business.repository';
-import { BUSINESS_CATEGORIES } from '../../data/category.mock';
+import { CategoryRepository } from '../../data/category.repository';
 import { getActiveCategories, getBusinessCountForCategory, toCategoryCard } from '../../utils/category.utils';
 
 @Component({
@@ -16,8 +16,11 @@ import { getActiveCategories, getBusinessCountForCategory, toCategoryCard } from
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoriesComponent {
-  readonly allCategories = signal(BUSINESS_CATEGORIES);
-  readonly businesses = signal(inject(BusinessRepository).getBusinesses());
+  private readonly categoryRepository = inject(CategoryRepository);
+  private readonly businessRepository = inject(BusinessRepository);
+
+  readonly allCategories = linkedSignal(() => this.categoryRepository.categories());
+  readonly businesses = linkedSignal(() => this.businessRepository.businesses());
 
   readonly cards = computed(() =>
     getActiveCategories(this.allCategories()).map((category) =>

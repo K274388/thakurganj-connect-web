@@ -1,0 +1,24 @@
+{
+  "server": {
+    "title": "Demo Saffron Kitchen | Thakurganj Connect",
+    "description": "Fictional restaurant listing for directory development.",
+    "headings": [
+      "Demo Saffron Kitchen",
+      "About",
+      "Products &amp; services",
+      "Location"
+    ],
+    "cards": 0
+  },
+  "client": {
+    "title": "Demo Saffron Kitchen | Thakurganj Connect",
+    "description": "Fictional restaurant listing for directory development.",
+    "headings": [
+      "Demo Saffron Kitchen",
+      "About",
+      "Products & services",
+      "Location"
+    ],
+    "cards": 0
+  }
+}

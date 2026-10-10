@@ -1,0 +1,22 @@
+{
+  "server": {
+    "title": "Business Categories | Thakurganj Connect",
+    "description": "Browse restaurants, shops, healthcare, services, education and other local businesses in Thakurganj.",
+    "headings": [
+      "What do you need today?",
+      "All categories",
+      "Got a shop? Put it on the map — free."
+    ],
+    "cards": 0
+  },
+  "client": {
+    "title": "Business Categories | Thakurganj Connect",
+    "description": "Browse restaurants, shops, healthcare, services, education and other local businesses in Thakurganj.",
+    "headings": [
+      "What do you need today?",
+      "All categories",
+      "Got a shop? Put it on the map — free."
+    ],
+    "cards": 0
+  }
+}

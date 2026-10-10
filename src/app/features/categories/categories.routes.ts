@@ -1,5 +1,6 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
-import { BUSINESS_CATEGORIES } from './data/category.mock';
+import { CategoryRepository } from './data/category.repository';
 import { findCategoryBySlug } from './utils/category.utils';
 
 const SITE = 'Thakurganj Connect';
@@ -17,8 +18,9 @@ export const CATEGORIES_ROUTES: Routes = [
       import('./pages/category-details/category-details.component').then(
         (module) => module.CategoryDetailsComponent,
       ),
+    // Title resolvers run in an injection context. The page also sets the title once its data is available.
     title: (route) => {
-      const category = findCategoryBySlug(BUSINESS_CATEGORIES, route.paramMap.get('slug') ?? '');
+      const category = findCategoryBySlug(inject(CategoryRepository).categories(), route.paramMap.get('slug') ?? '');
       return category?.active ? `${category.name} in Thakurganj | ${SITE}` : `Category not found | ${SITE}`;
     },
   },

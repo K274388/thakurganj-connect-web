@@ -1,6 +1,6 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { BUSINESS_CATEGORIES } from '../../../categories/data/category.mock';
+import { CategoryRepository } from '../../../categories/data/category.repository';
 import { BusinessCategory } from '../../../categories/models/category.models';
 import { findCategoryBySlug, getActiveCategories, getActiveSubcategories } from '../../../categories/utils/category.utils';
 import { BUSINESS_FIELD_RULES } from '../business-form/business-form.config';
@@ -59,13 +59,15 @@ import { FormFieldComponent } from '../business-form/form-field.component';
 })
 export class BusinessBasicInfoFormComponent {
   readonly group = input.required<BusinessFormGroup['controls']['basicInfo']>();
-  readonly categories = input<BusinessCategory[]>(BUSINESS_CATEGORIES);
+  /** Defaults to the shared category catalog. */
+  readonly categories = input<BusinessCategory[] | undefined>(undefined);
+  private readonly catalog = inject(CategoryRepository).categories;
   readonly showDetails = input(false);
 
   protected readonly maxName = BUSINESS_FIELD_RULES.name.maxLength;
 
   protected activeCategories(): BusinessCategory[] {
-    return getActiveCategories(this.categories());
+    return getActiveCategories(this.categories() ?? this.catalog());
   }
 
   protected subcategories() {

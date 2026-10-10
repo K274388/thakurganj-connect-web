@@ -1,0 +1,24 @@
+{
+  "server": {
+    "title": "About Thakurganj | Thakurganj Connect",
+    "description": "Local information for Thakurganj, Bihar. Find businesses, services, places and community updates.",
+    "headings": [
+      "Your town your story",
+      "A small town.A big heart.",
+      "Our town, at a glance.",
+      "Made for our town.Made for everyone."
+    ],
+    "cards": 0
+  },
+  "client": {
+    "title": "About Thakurganj | Thakurganj Connect",
+    "description": "Local information for Thakurganj, Bihar. Find businesses, services, places and community updates.",
+    "headings": [
+      "Your town your story",
+      "A small town.A big heart.",
+      "Our town, at a glance.",
+      "Made for our town.Made for everyone."
+    ],
+    "cards": 0
+  }
+}

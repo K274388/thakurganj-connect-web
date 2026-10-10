@@ -1,4 +1,5 @@
-﻿import { Component, HostListener, inject, signal, viewChild } from '@angular/core';
+﻿import { Component, DestroyRef, HostListener, inject, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { markPageAsPrivate } from '../../../../core/seo/private-page';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
@@ -18,6 +19,7 @@ import { Business, CreateBusinessRequest } from '../../models/business.models';
 export class AddBusinessComponent implements HasUnsavedChanges {
   private readonly repository = inject(BusinessRepository);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly form = viewChild(BusinessFormComponent);
   private resolveLeave: ((canLeave: boolean) => void) | null = null;
 
@@ -44,12 +46,16 @@ export class AddBusinessComponent implements HasUnsavedChanges {
   protected save(request: CreateBusinessRequest): void {
     if (this.saveState() === 'saving') return;
     this.saveState.set('saving');
-    try {
-      this.created.set(this.repository.createBusiness(request));
-      this.saveState.set('success');
-    } catch {
-      this.saveState.set('error');
-    }
+    this.repository
+      .createBusiness(request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (business) => {
+          this.created.set(business);
+          this.saveState.set('success');
+        },
+        error: () => this.saveState.set('error'),
+      });
   }
 
   protected cancel(): void {

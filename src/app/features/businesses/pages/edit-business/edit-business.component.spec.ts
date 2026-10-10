@@ -3,7 +3,9 @@ import { TestBed } from '@angular/core/testing';
 import { By, Meta } from '@angular/platform-browser';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { throwError } from 'rxjs';
 import { vi } from 'vitest';
+import { emitted } from '../../../../core/testing/emitted';
 import { BUSINESS_CATEGORIES } from '../../../categories/data/category.mock';
 import { BusinessFormComponent } from '../../components/business-form/business-form.component';
 import { BUSINESS_UPDATE_SUCCESS_MESSAGE } from '../../components/business-form/business-form.config';
@@ -61,7 +63,7 @@ describe('EditBusinessComponent', () => {
       ],
     }).compileComponents();
     repository = TestBed.inject(BusinessRepository);
-    owned = repository.createBusiness(REQUEST);
+    owned = emitted(repository.createBusiness(REQUEST));
     harness = await RouterTestingHarness.create();
   });
 
@@ -155,7 +157,7 @@ describe('EditBusinessComponent', () => {
     });
 
     it('does not select Same as phone, nor overwrite a distinct WhatsApp number', async () => {
-      const distinct = repository.createBusiness({ ...REQUEST, name: 'Distinct WA', whatsapp: '9123456789' });
+      const distinct = emitted(repository.createBusiness({ ...REQUEST, name: 'Distinct WA', whatsapp: '9123456789' }));
       await open(distinct.id);
       expect(form().controls.contact.controls.whatsappSameAsPhone.value).toBe(false);
       expect(form().controls.contact.controls.whatsapp.value).toBe('9123456789');
@@ -230,9 +232,7 @@ describe('EditBusinessComponent', () => {
     });
 
     it('keeps the form and shows a retryable error when saving fails', async () => {
-      vi.spyOn(repository, 'updateBusiness').mockImplementationOnce(() => {
-        throw new Error('boom');
-      });
+      vi.spyOn(repository, 'updateBusiness').mockImplementationOnce(() => throwError(() => new Error('boom')));
       fill('bf-name', 'Aaa Unsaved');
       submit();
       const error = page.querySelector('.save-error')!.textContent!;
@@ -326,13 +326,13 @@ describe('BusinessRepository.updateBusiness', () => {
   it('rejects an update from a non-owner and leaves the business unchanged', () => {
     const foreign = repository.getBusinesses().find((item) => item.ownerId !== 1)!;
     const before = { ...foreign };
-    expect(() => repository.updateBusiness(foreign.id, 1, { ...REQUEST, name: 'Hijacked' })).toThrow(BusinessAccessError);
+    expect(() => emitted(repository.updateBusiness(foreign.id, 1, { ...REQUEST, name: 'Hijacked' }))).toThrow(BusinessAccessError);
     expect(repository.getBusiness(foreign.id)).toEqual(before);
   });
 
   it('reports unknown ids as not found', () => {
     try {
-      repository.updateBusiness(999999, 1, REQUEST);
+      emitted(repository.updateBusiness(999999, 1, REQUEST));
       expect.unreachable();
     } catch (error) {
       expect((error as BusinessAccessError).code).toBe('NOT_FOUND');
@@ -342,7 +342,7 @@ describe('BusinessRepository.updateBusiness', () => {
   it('ignores protected fields smuggled into the request and preserves status', () => {
     const inactive = repository.getBusiness(21)!;
     const tainted = { ...REQUEST, status: 'ACTIVE', ownerId: 2, id: 77, createdAt: 'x' } as CreateBusinessRequest;
-    const updated = repository.updateBusiness(21, 1, tainted);
+    const updated = emitted(repository.updateBusiness(21, 1, tainted));
     expect(updated.status).toBe('INACTIVE');
     expect(updated.ownerId).toBe(1);
     expect(updated.id).toBe(inactive.id);

@@ -24,14 +24,14 @@
             <option value="" [selected]="categoryValue() === ''">All categories</option>
             @if (showBusinessCategories()) {
               <optgroup label="Business categories">
-                @for (category of businessCategories; track category.id) {
+                @for (category of businessCategories(); track category.id) {
                   <option [value]="'business:' + category.slug" [selected]="categoryValue() === 'business:' + category.slug">{{ category.name }}</option>
                 }
               </optgroup>
             }
             @if (showPlaceCategories()) {
               <optgroup label="Place categories">
-                @for (category of placeCategories; track category.id) {
+                @for (category of placeCategories(); track category.id) {
                   <option [value]="'place:' + category.slug" [selected]="categoryValue() === 'place:' + category.slug">{{ category.name }}</option>
                 }
               </optgroup>

@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Meta } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BusinessRepository } from '../../../businesses/data/business.repository';
-import { BUSINESS_CATEGORIES } from '../../../categories/data/category.mock';
+import { CategoryRepository } from '../../../categories/data/category.repository';
 import { getActiveCategories } from '../../../categories/utils/category.utils';
 import { PlaceRepository } from '../../../places/data/place.repository';
 import { getActivePlaceCategories } from '../../../places/utils/place.utils';
@@ -43,6 +43,7 @@ export class MapExplorerComponent {
   private readonly router = inject(Router);
   private readonly businesses = inject(BusinessRepository);
   private readonly places = inject(PlaceRepository);
+  private readonly categories = inject(CategoryRepository);
   private readonly query = toSignal(this.route.queryParamMap, { initialValue: this.route.snapshot.queryParamMap });
 
   protected readonly typeOptions: { value: MapTypeFilter; label: string }[] = [
@@ -50,18 +51,18 @@ export class MapExplorerComponent {
     { value: 'business', label: 'Businesses' },
     { value: 'place', label: 'Places' },
   ];
-  protected readonly businessCategories = getActiveCategories(BUSINESS_CATEGORIES);
-  protected readonly placeCategories = getActivePlaceCategories();
+  protected readonly businessCategories = computed(() => getActiveCategories(this.categories.categories()));
+  protected readonly placeCategories = computed(() => getActivePlaceCategories(this.places.categories()));
   protected readonly sheetState = signal<SheetState>('partial');
 
-  protected readonly allItems = computed(() => buildMapItems(this.businesses.getBusinesses(), this.places.getPlaces()));
+  protected readonly allItems = computed(() => buildMapItems(this.businesses.businesses(), this.places.places()));
   protected readonly filters = computed<MapFilters>(() => {
     const params = this.query();
     const type = parseTypeParam(params.get('type'));
     const parsed = parseCategoryParam(params.get('category'), type);
     const known =
       parsed &&
-      (parsed.entityType === 'business' ? this.businessCategories : this.placeCategories).some(
+      (parsed.entityType === 'business' ? this.businessCategories() : this.placeCategories()).some(
         (category) => category.slug === parsed.slug,
       );
     return { type, category: known ? parsed : null, search: params.get('search')?.trim() ?? '' };
@@ -86,7 +87,7 @@ export class MapExplorerComponent {
   });
   protected readonly breakdown = computed(() => {
     const { business, place } = this.counts();
-    return `${business} ${business === 1 ? 'business' : 'businesses'} · ${place} ${place === 1 ? 'place' : 'places'}`;
+    return `${business} ${business === 1 ? 'business' : 'businesses'} ï¿½ ${place} ${place === 1 ? 'place' : 'places'}`;
   });
   protected readonly showBusinessCategories = computed(() => this.filters().type !== 'place');
   protected readonly showPlaceCategories = computed(() => this.filters().type !== 'business');

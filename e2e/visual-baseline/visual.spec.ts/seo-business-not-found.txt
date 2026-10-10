@@ -1,0 +1,20 @@
+{
+  "server": {
+    "title": "Business not found | Thakurganj Connect",
+    "description": "Find contact details, hours and location for local businesses in Thakurganj.",
+    "headings": [
+      "Business not found",
+      "Got a shop? Put it on the map — free."
+    ],
+    "cards": 0
+  },
+  "client": {
+    "title": "Business not found | Thakurganj Connect",
+    "description": "Find contact details, hours and location for local businesses in Thakurganj.",
+    "headings": [
+      "Business not found",
+      "Got a shop? Put it on the map — free."
+    ],
+    "cards": 0
+  }
+}

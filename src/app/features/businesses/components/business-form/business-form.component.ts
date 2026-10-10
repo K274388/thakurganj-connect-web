@@ -1,6 +1,6 @@
 ﻿import { Component, ElementRef, OnInit, computed, inject, input, output, signal } from '@angular/core';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
-import { BUSINESS_CATEGORIES } from '../../../categories/data/category.mock';
+import { CategoryRepository } from '../../../categories/data/category.repository';
 import { Business, CreateBusinessRequest } from '../../models/business.models';
 import { BusinessBasicInfoFormComponent } from '../business-basic-info-form/business-basic-info-form.component';
 import { BusinessContactFormComponent } from '../business-contact-form/business-contact-form.component';
@@ -107,6 +107,7 @@ export type BusinessSaveState = 'idle' | 'saving' | 'success' | 'error';
 })
 export class BusinessFormComponent implements OnInit {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly categories = inject(CategoryRepository).categories;
 
   readonly saveState = input<BusinessSaveState>('idle');
   readonly mode = input<BusinessFormMode>('create');
@@ -160,7 +161,7 @@ export class BusinessFormComponent implements OnInit {
       return;
     }
     this.showSummary.set(false);
-    this.saved.emit(toCreateBusinessRequest(this.form));
+    this.saved.emit(toCreateBusinessRequest(this.form, this.categories()));
   }
 
   private focusFirstInvalid(): void {
@@ -173,7 +174,7 @@ export class BusinessFormComponent implements OnInit {
 
   private updatePreview(): void {
     const { basicInfo, contact, location } = this.form.getRawValue();
-    const category = BUSINESS_CATEGORIES.find((item) => item.slug === basicInfo.category);
+    const category = this.categories().find((item) => item.slug === basicInfo.category);
     const subcategory = category?.subcategories.find((item) => item.slug === basicInfo.subcategory);
     this.preview.set({
       name: basicInfo.name.trim(),

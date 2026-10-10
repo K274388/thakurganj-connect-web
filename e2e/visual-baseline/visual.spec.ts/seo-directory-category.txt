@@ -1,0 +1,24 @@
+{
+  "server": {
+    "title": "Businesses in Thakurganj | Thakurganj Connect",
+    "description": "Find shops, restaurants, healthcare, services and local businesses in Thakurganj.",
+    "headings": [
+      "What are you looking for?",
+      "Browse by category",
+      "Food &amp; Restaurants",
+      "Have a shop or offer a service?"
+    ],
+    "cards": 4
+  },
+  "client": {
+    "title": "Businesses in Thakurganj | Thakurganj Connect",
+    "description": "Find shops, restaurants, healthcare, services and local businesses in Thakurganj.",
+    "headings": [
+      "What are you looking for?",
+      "Browse by category",
+      "Food & Restaurants",
+      "Have a shop or offer a service?"
+    ],
+    "cards": 4
+  }
+}

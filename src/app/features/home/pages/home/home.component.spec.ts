@@ -21,8 +21,9 @@ describe('HomeComponent', () => {
   });
 
   it('renders quick links, categories and places with router links', () => {
-    expect(page.querySelectorAll('.quick-links a').length).toBe(8);
-    expect(page.querySelectorAll('.category-grid a').length).toBe(8);
+    // 'Hotels & Stay' (and 'Real Estate' in the category grid) are intentionally disabled in HomeComponent.
+    expect(page.querySelectorAll('.quick-links a').length).toBe(7);
+    expect(page.querySelectorAll('.category-grid a').length).toBe(6);
     expect(page.querySelectorAll('.place-grid a').length).toBe(5);
     expect(page.querySelector<HTMLAnchorElement>('.cta a')?.getAttribute('href')).toBe('/my/business/new');
   });

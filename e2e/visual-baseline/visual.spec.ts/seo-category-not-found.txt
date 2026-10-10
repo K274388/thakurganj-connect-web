@@ -1,0 +1,18 @@
+{
+  "server": {
+    "title": "Category not found | Thakurganj Connect",
+    "description": "Local information for Thakurganj, Bihar. Find businesses, services, places and community updates.",
+    "headings": [
+      "Category not found"
+    ],
+    "cards": 0
+  },
+  "client": {
+    "title": "Category not found | Thakurganj Connect",
+    "description": "Local information for Thakurganj, Bihar. Find businesses, services, places and community updates.",
+    "headings": [
+      "Category not found"
+    ],
+    "cards": 0
+  }
+}

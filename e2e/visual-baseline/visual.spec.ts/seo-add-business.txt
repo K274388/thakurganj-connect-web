@@ -1,0 +1,22 @@
+{
+  "server": {
+    "title": "Add your business | Thakurganj Connect",
+    "description": "Local information for Thakurganj, Bihar. Find businesses, services, places and community updates.",
+    "headings": [
+      "Apna kaam, sabko batao.",
+      "Tell us about your work",
+      "Your listing preview"
+    ],
+    "cards": 0
+  },
+  "client": {
+    "title": "Add your business | Thakurganj Connect",
+    "description": "Local information for Thakurganj, Bihar. Find businesses, services, places and community updates.",
+    "headings": [
+      "Apna kaam, sabko batao.",
+      "Tell us about your work",
+      "Your listing preview"
+    ],
+    "cards": 0
+  }
+}

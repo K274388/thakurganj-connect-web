@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BusinessRepository } from '../../../businesses/data/business.repository';
 import { Business } from '../../../businesses/models/business.models';
 import { PlaceRepository } from '../../../places/data/place.repository';
+import { PLACE_CATEGORIES } from '../../../places/data/place-category.mock';
 import { Place } from '../../../places/models/place.models';
 import { MAP_LIBRARY_LOADER } from '../../components/map-view/map-library';
 import { FakeMarker, fakeLibrary } from '../../testing/map-fakes';
@@ -41,8 +42,8 @@ describe('MapExplorerComponent', () => {
         ]),
         { provide: PLATFORM_ID, useValue: platform },
         { provide: MAP_LIBRARY_LOADER, useValue: async () => fakeLibrary() },
-        { provide: BusinessRepository, useValue: { getBusinesses: () => businesses() } },
-        { provide: PlaceRepository, useValue: { getPlaces: () => places() } },
+        { provide: BusinessRepository, useValue: { businesses } },
+        { provide: PlaceRepository, useValue: { places, categories: signal(PLACE_CATEGORIES) } },
       ],
     });
     harness = await RouterTestingHarness.create();
@@ -82,7 +83,7 @@ describe('MapExplorerComponent', () => {
     expect(el.querySelectorAll('h1').length).toBe(1);
     expect(names()).toEqual(['Saffron Kitchen', 'Cloth House', 'Thakurganj Junction', 'Hargauri Mandir']);
     expect(el.querySelector('[role="status"]')?.textContent).toContain('4 results');
-    expect(el.querySelector('[role="status"]')?.textContent).toContain('2 businesses · 2 places');
+    expect(el.querySelector('[role="status"]')?.textContent).toContain('2 businesses ï¿½ 2 places');
     expect(el.textContent).toContain('Only listings with map locations are shown here.');
     expect(TestBed.inject(Meta).getTag('name="description"')?.content).toBe(MAP_DESCRIPTION);
   });
@@ -230,8 +231,8 @@ describe('MapExplorerComponent', () => {
       providers: [
         provideRouter([{ path: 'map', component: MapExplorerComponent }]),
         { provide: MAP_LIBRARY_LOADER, useValue: async () => { throw new Error('fail'); } },
-        { provide: BusinessRepository, useValue: { getBusinesses: () => businesses() } },
-        { provide: PlaceRepository, useValue: { getPlaces: () => places() } },
+        { provide: BusinessRepository, useValue: { businesses } },
+        { provide: PlaceRepository, useValue: { places, categories: signal(PLACE_CATEGORIES) } },
       ],
     });
     harness = await RouterTestingHarness.create();
@@ -249,8 +250,8 @@ describe('MapExplorerComponent', () => {
         provideRouter([{ path: 'map', component: MapExplorerComponent }]),
         { provide: PLATFORM_ID, useValue: 'server' },
         { provide: MAP_LIBRARY_LOADER, useValue: loader },
-        { provide: BusinessRepository, useValue: { getBusinesses: () => businesses() } },
-        { provide: PlaceRepository, useValue: { getPlaces: () => places() } },
+        { provide: BusinessRepository, useValue: { businesses } },
+        { provide: PlaceRepository, useValue: { places, categories: signal(PLACE_CATEGORIES) } },
       ],
     });
     harness = await RouterTestingHarness.create();

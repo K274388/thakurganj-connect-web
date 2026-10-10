@@ -1,0 +1,20 @@
+{
+  "server": {
+    "title": "Edit your business | Thakurganj Connect",
+    "description": "Local information for Thakurganj, Bihar. Find businesses, services, places and community updates.",
+    "headings": [
+      "Keep your listingup to date.",
+      "Tell us about your work"
+    ],
+    "cards": 0
+  },
+  "client": {
+    "title": "Edit your business | Thakurganj Connect",
+    "description": "Local information for Thakurganj, Bihar. Find businesses, services, places and community updates.",
+    "headings": [
+      "Keep your listingup to date.",
+      "Tell us about your work"
+    ],
+    "cards": 0
+  }
+}

@@ -1,13 +1,13 @@
-﻿import { BUSINESS_CATEGORIES } from '../../../categories/data/category.mock';
+﻿import { BusinessCategory } from '../../../categories/models/category.models';
 import { BusinessDayHours, CreateBusinessRequest } from '../../models/business.models';
 import { BusinessFormGroup } from './business-form.factory';
 
 const clean = (value: string | null | undefined): string | undefined => value?.trim() || undefined;
 
 /** Maps form values to a create request. Backend-owned fields (status, ownerId, timestamps) are intentionally absent. */
-export function toCreateBusinessRequest(form: BusinessFormGroup): CreateBusinessRequest {
+export function toCreateBusinessRequest(form: BusinessFormGroup, categories: BusinessCategory[]): CreateBusinessRequest {
   const { basicInfo, contact, location, services, hours } = form.getRawValue();
-  const category = BUSINESS_CATEGORIES.find((item) => item.slug === basicInfo.category);
+  const category = categories.find((item) => item.slug === basicInfo.category);
   if (!category) throw new Error('A category is required.');
   const subcategory = category.subcategories.find((item) => item.slug === basicInfo.subcategory);
 

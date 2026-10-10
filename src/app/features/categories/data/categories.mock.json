@@ -1,0 +1,418 @@
+[
+  {
+    "id": 1,
+    "slug": "food-restaurants",
+    "name": "Food & Restaurants",
+    "hindiName": "खान-पान",
+    "description": "Restaurants, food shops and local places to eat.",
+    "icon": "utensils",
+    "visualVariant": "dark",
+    "displayOrder": 1,
+    "active": true,
+    "subcategories": [
+      {
+        "id": 101,
+        "slug": "restaurant",
+        "categoryId": 1,
+        "name": "Restaurant",
+        "displayOrder": 1,
+        "active": true
+      },
+      {
+        "id": 102,
+        "slug": "dhaba",
+        "categoryId": 1,
+        "name": "Dhaba",
+        "displayOrder": 2,
+        "active": true
+      },
+      {
+        "id": 103,
+        "slug": "bakery",
+        "categoryId": 1,
+        "name": "Bakery",
+        "displayOrder": 3,
+        "active": true
+      },
+      {
+        "id": 104,
+        "slug": "sweets",
+        "categoryId": 1,
+        "name": "Sweets",
+        "displayOrder": 4,
+        "active": true
+      },
+      {
+        "id": 105,
+        "slug": "tea-shop",
+        "categoryId": 1,
+        "name": "Tea Shop",
+        "displayOrder": 5,
+        "active": true
+      },
+      {
+        "id": 106,
+        "slug": "fast-food",
+        "categoryId": 1,
+        "name": "Fast Food",
+        "displayOrder": 6,
+        "active": true
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "slug": "shopping",
+    "name": "Shopping",
+    "hindiName": "खरीदारी",
+    "description": "Clothing, groceries, electronics and everyday shops.",
+    "icon": "shopping",
+    "visualVariant": "cream",
+    "displayOrder": 2,
+    "active": true,
+    "subcategories": [
+      {
+        "id": 201,
+        "slug": "clothing",
+        "categoryId": 2,
+        "name": "Clothing",
+        "displayOrder": 1,
+        "active": true
+      },
+      {
+        "id": 202,
+        "slug": "grocery",
+        "categoryId": 2,
+        "name": "Grocery",
+        "displayOrder": 2,
+        "active": true
+      },
+      {
+        "id": 203,
+        "slug": "electronics",
+        "categoryId": 2,
+        "name": "Electronics",
+        "displayOrder": 3,
+        "active": true
+      },
+      {
+        "id": 204,
+        "slug": "mobile",
+        "categoryId": 2,
+        "name": "Mobile",
+        "displayOrder": 4,
+        "active": true
+      },
+      {
+        "id": 205,
+        "slug": "furniture",
+        "categoryId": 2,
+        "name": "Furniture",
+        "displayOrder": 5,
+        "active": true
+      },
+      {
+        "id": 206,
+        "slug": "shoes",
+        "categoryId": 2,
+        "name": "Shoes",
+        "displayOrder": 6,
+        "active": true
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "slug": "health",
+    "name": "Health",
+    "hindiName": "स्वास्थ्य",
+    "description": "Pharmacies, doctors, clinics and diagnostic services.",
+    "icon": "health",
+    "visualVariant": "magenta",
+    "displayOrder": 3,
+    "active": true,
+    "subcategories": [
+      {
+        "id": 301,
+        "slug": "pharmacy",
+        "categoryId": 3,
+        "name": "Pharmacy",
+        "displayOrder": 1,
+        "active": true
+      },
+      {
+        "id": 302,
+        "slug": "doctor",
+        "categoryId": 3,
+        "name": "Doctor",
+        "displayOrder": 2,
+        "active": true
+      },
+      {
+        "id": 303,
+        "slug": "clinic",
+        "categoryId": 3,
+        "name": "Clinic",
+        "displayOrder": 3,
+        "active": true
+      },
+      {
+        "id": 304,
+        "slug": "diagnostic",
+        "categoryId": 3,
+        "name": "Diagnostic",
+        "displayOrder": 4,
+        "active": true
+      },
+      {
+        "id": 305,
+        "slug": "dental",
+        "categoryId": 3,
+        "name": "Dental",
+        "displayOrder": 5,
+        "active": true
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "slug": "services",
+    "name": "Services",
+    "hindiName": "सेवाएं",
+    "description": "Electricians, plumbers, mechanics and other local services.",
+    "icon": "services",
+    "visualVariant": "light",
+    "displayOrder": 4,
+    "active": true,
+    "subcategories": [
+      {
+        "id": 401,
+        "slug": "electrician",
+        "categoryId": 4,
+        "name": "Electrician",
+        "displayOrder": 1,
+        "active": true
+      },
+      {
+        "id": 402,
+        "slug": "plumber",
+        "categoryId": 4,
+        "name": "Plumber",
+        "displayOrder": 2,
+        "active": true
+      },
+      {
+        "id": 403,
+        "slug": "mechanic",
+        "categoryId": 4,
+        "name": "Mechanic",
+        "displayOrder": 3,
+        "active": true
+      },
+      {
+        "id": 404,
+        "slug": "tailor",
+        "categoryId": 4,
+        "name": "Tailor",
+        "displayOrder": 4,
+        "active": true
+      },
+      {
+        "id": 405,
+        "slug": "carpenter",
+        "categoryId": 4,
+        "name": "Carpenter",
+        "displayOrder": 5,
+        "active": true
+      },
+      {
+        "id": 406,
+        "slug": "computer-service",
+        "categoryId": 4,
+        "name": "Computer Service",
+        "displayOrder": 6,
+        "active": true
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "slug": "education",
+    "name": "Education",
+    "hindiName": "शिक्षा",
+    "description": "Schools, coaching, colleges and computer institutes.",
+    "icon": "education",
+    "visualVariant": "yellow",
+    "displayOrder": 5,
+    "active": true,
+    "subcategories": [
+      {
+        "id": 501,
+        "slug": "school",
+        "categoryId": 5,
+        "name": "School",
+        "displayOrder": 1,
+        "active": true
+      },
+      {
+        "id": 502,
+        "slug": "coaching",
+        "categoryId": 5,
+        "name": "Coaching",
+        "displayOrder": 2,
+        "active": true
+      },
+      {
+        "id": 503,
+        "slug": "college",
+        "categoryId": 5,
+        "name": "College",
+        "displayOrder": 3,
+        "active": true
+      },
+      {
+        "id": 504,
+        "slug": "computer-institute",
+        "categoryId": 5,
+        "name": "Computer Institute",
+        "displayOrder": 4,
+        "active": true
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "slug": "automobile",
+    "name": "Automobile",
+    "hindiName": "वाहन",
+    "description": "Car and bike repair, tyres and spare parts.",
+    "icon": "automobile",
+    "visualVariant": "dark",
+    "displayOrder": 6,
+    "active": true,
+    "subcategories": [
+      {
+        "id": 601,
+        "slug": "car-repair",
+        "categoryId": 6,
+        "name": "Car Repair",
+        "displayOrder": 1,
+        "active": true
+      },
+      {
+        "id": 602,
+        "slug": "bike-repair",
+        "categoryId": 6,
+        "name": "Bike Repair",
+        "displayOrder": 2,
+        "active": true
+      },
+      {
+        "id": 603,
+        "slug": "tyre",
+        "categoryId": 6,
+        "name": "Tyre",
+        "displayOrder": 3,
+        "active": true
+      },
+      {
+        "id": 604,
+        "slug": "spare-parts",
+        "categoryId": 6,
+        "name": "Spare Parts",
+        "displayOrder": 4,
+        "active": true
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "slug": "home-services",
+    "name": "Home Services",
+    "hindiName": "घरेलू सेवाएं",
+    "description": "Cleaning, painting, pest control and appliance repair.",
+    "icon": "home",
+    "visualVariant": "cream",
+    "displayOrder": 7,
+    "active": true,
+    "subcategories": [
+      {
+        "id": 701,
+        "slug": "cleaning",
+        "categoryId": 7,
+        "name": "Cleaning",
+        "displayOrder": 1,
+        "active": true
+      },
+      {
+        "id": 702,
+        "slug": "painting",
+        "categoryId": 7,
+        "name": "Painting",
+        "displayOrder": 2,
+        "active": true
+      },
+      {
+        "id": 703,
+        "slug": "pest-control",
+        "categoryId": 7,
+        "name": "Pest Control",
+        "displayOrder": 3,
+        "active": true
+      },
+      {
+        "id": 704,
+        "slug": "appliance-repair",
+        "categoryId": 7,
+        "name": "Appliance Repair",
+        "displayOrder": 4,
+        "active": true
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "slug": "finance",
+    "name": "Finance",
+    "hindiName": "बैंक और वित्त",
+    "description": "Banks, insurance, tax and financial services.",
+    "icon": "finance",
+    "visualVariant": "magenta",
+    "displayOrder": 8,
+    "active": true,
+    "subcategories": [
+      {
+        "id": 801,
+        "slug": "bank",
+        "categoryId": 8,
+        "name": "Bank",
+        "displayOrder": 1,
+        "active": true
+      },
+      {
+        "id": 802,
+        "slug": "insurance",
+        "categoryId": 8,
+        "name": "Insurance",
+        "displayOrder": 2,
+        "active": true
+      },
+      {
+        "id": 803,
+        "slug": "tax-service",
+        "categoryId": 8,
+        "name": "Tax Service",
+        "displayOrder": 3,
+        "active": true
+      },
+      {
+        "id": 804,
+        "slug": "financial-service",
+        "categoryId": 8,
+        "name": "Financial Service",
+        "displayOrder": 4,
+        "active": true
+      }
+    ]
+  }
+]

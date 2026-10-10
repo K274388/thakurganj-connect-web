@@ -1,0 +1,1345 @@
+openapi: 3.0.3
+info:
+  title: Thakurganj Connect API
+  version: 1.0.0
+  description: |
+    Backend contract for the Thakurganj Connect Angular app (`thakurganj-connect-web`).
+
+    Every schema is derived from the frontend TypeScript models, so a response that matches this spec
+    renders exactly as the bundled mock data does today:
+
+    | Frontend source | Schema |
+    |---|---|
+    | `features/businesses/models/business.models.ts` | `Business`, `BusinessRequest`, `BusinessDayHours`, `BusinessImage` |
+    | `features/categories/models/category.models.ts` | `BusinessCategory`, `BusinessSubcategory` |
+    | `features/places/models/place.models.ts`, `place-category.models.ts` | `Place`, `PlaceCategory` |
+    | `features/map/models/map-item.models.ts` | `MapItem` |
+    | `core/api/api-responses.ts` | `PagedResponse`, `ItemsResponse` |
+    | `shared/models/event-card-data.ts`, `announcement-bar-item.ts`, `emergency-card.component.ts` | `Event`, `Announcement`, `EmergencyContact` |
+
+    **`x-frontend-status`** on each operation tells the backend team what to build first:
+
+    * `in-use`: the HTTP repositories already call it when `environment.dataSource = 'http'`.
+    * `required`: needed to replace a mock (for example the hard-coded owner) before going live.
+    * `planned`: the page exists only as a placeholder or static content today. Build it when that feature is designed.
+
+    Conventions:
+    * JSON (`application/json; charset=utf-8`). Errors use `application/problem+json`.
+    * Date-times are ISO 8601 UTC (`2026-10-08T20:45:10Z`). Dates are `YYYY-MM-DD`. Times are 24h `HH:mm`.
+    * Pagination is 1-based. The frontend currently requests `pageSize=100` and filters, sorts and paginates
+      in memory, so the server **must accept `pageSize` up to 100**.
+    * **Omit absent optional values instead of sending `null`**, except the fields explicitly marked `nullable`
+      (Spring: `@JsonInclude(JsonInclude.Include.NON_NULL)`). Contact text fields typed as `string` in the
+      frontend (`phone`, `whatsapp`, `email`, `website`, `address`, `landmark`, `area`) must be `""` when empty, never `null`.
+    * Public endpoints return only active records; unknown **or inactive** public records return `404`.
+    * Owner endpoints derive the owner from the authenticated principal. Never accept `ownerId`, `status`, `slug`
+      or timestamps from the client.
+  contact:
+    name: Thakurganj Connect
+    email: hello@thakurganj.connect
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local Spring Boot (matches `environment.development.ts`)
+  - url: https://api.thakurganj.connect/api/v1
+    description: Production (placeholder; set `environment.ts` `apiBaseUrl` to the real absolute URL)
+
+tags:
+  - name: Auth
+    description: Accounts and the current user. Replaces `MockCurrentUserService`.
+  - name: Categories
+    description: Business category and subcategory catalog (`/categories`, filters, business form).
+  - name: Businesses
+    description: Public business directory (`/businesses`, `/businesses/:id`, home, categories, map).
+  - name: My Businesses
+    description: Owner-only listing management (`/my/businesses`, `/my/business/new`, `/my/businesses/:id/edit`).
+  - name: Places
+    description: Landmarks, markets, transport, religious places (home "Explore town", map, future `/places`).
+  - name: Map
+    description: Combined marker feed for `/map`.
+  - name: Media
+    description: Business image uploads (the form currently previews images locally and does not upload).
+  - name: Community
+    description: Events, announcements, emergency contacts and home statistics (static/placeholder today).
+  - name: Reports
+    description: Content and listing reports (`/legal/report`; currently a `mailto:` link).
+
+paths:
+  # ───────────────────────────── Auth ─────────────────────────────
+  /auth/register:
+    post:
+      tags: [Auth]
+      operationId: register
+      summary: Create an account
+      description: Backs the `/register` page (placeholder today).
+      x-frontend-status: required
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '201':
+          description: Account created and signed in.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '409':
+          description: Email already registered.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+              example: { type: about:blank, title: Conflict, status: 409, code: EMAIL_TAKEN, detail: An account with this email already exists. }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      operationId: login
+      summary: Sign in
+      description: Backs the `/login` page (placeholder today).
+      x-frontend-status: required
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Signed in.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401':
+          description: Wrong email or password. Use one generic message for both cases.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+              example: { type: about:blank, title: Unauthorized, status: 401, code: INVALID_CREDENTIALS, detail: Email or password is incorrect. }
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      operationId: getCurrentUser
+      summary: Current user
+      description: |
+        Replaces `MOCK_CURRENT_USER` (`{ id: 1, name: 'Demo Owner' }`). The `id` is compared with
+        `Business.ownerId` on the edit page, so both must use the same identifier type.
+      x-frontend-status: required
+      responses:
+        '200':
+          description: The signed-in user.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      operationId: logout
+      summary: Sign out
+      x-frontend-status: required
+      responses:
+        '204': { description: Signed out; the token/session is invalidated. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  # ─────────────────────────── Categories ───────────────────────────
+  /categories:
+    get:
+      tags: [Categories]
+      operationId: listCategories
+      summary: Business category catalog
+      description: |
+        Called by `HttpCategoryRepository` once at startup. Used by `/categories`, `/categories/:slug`,
+        the directory filters, the map category filter and the business form category/subcategory selects.
+
+        Return categories ordered by `displayOrder`, each with its subcategories nested. The frontend filters
+        by `active` itself, so inactive entries may be included. The UI computes per-category business counts
+        from `/businesses`; `businessCount` is optional.
+      x-frontend-status: in-use
+      security: []
+      responses:
+        '200':
+          description: All categories.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/BusinessCategory' }
+              example:
+                items:
+                  - id: 1
+                    slug: food-restaurants
+                    name: Food & Restaurants
+                    hindiName: खान-पान
+                    description: Restaurants, food shops and local places to eat.
+                    icon: utensils
+                    visualVariant: dark
+                    displayOrder: 1
+                    active: true
+                    subcategories:
+                      - { id: 101, slug: restaurant, categoryId: 1, name: Restaurant, displayOrder: 1, active: true }
+                      - { id: 102, slug: dhaba, categoryId: 1, name: Dhaba, displayOrder: 2, active: true }
+
+  /categories/{slug}:
+    get:
+      tags: [Categories]
+      operationId: getCategory
+      summary: One category by slug
+      description: |
+        Not called yet: `/categories/:slug` resolves the category from the `/categories` list. Useful later
+        for server-side rendering a single category page without loading the full catalog.
+      x-frontend-status: planned
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+      responses:
+        '200':
+          description: The category with its active subcategories.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BusinessCategory' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ─────────────────────────── Businesses ───────────────────────────
+  /businesses:
+    get:
+      tags: [Businesses]
+      operationId: listBusinesses
+      summary: Public business directory
+      description: |
+        `HttpBusinessRepository` calls `GET /businesses?pageSize=100` once and filters in memory. That list
+        feeds `/businesses`, `/categories`, `/categories/:slug`, the home page and `/map`.
+
+        The filter parameters below match the directory's URL query string
+        (`/businesses?search=&category=&subcategory=&area=&sort=&page=`), so the UI can move to server-side
+        filtering without renaming anything. Return **only `ACTIVE`** businesses.
+      x-frontend-status: in-use
+      security: []
+      parameters:
+        - name: search
+          in: query
+          description: Case-insensitive substring over name, shortDescription, category/subcategory names, services and area.
+          schema: { type: string, maxLength: 100 }
+        - name: category
+          in: query
+          description: Category slug, e.g. `food-restaurants`.
+          schema: { type: string }
+        - name: subcategory
+          in: query
+          description: Subcategory slug; must belong to `category` when both are given.
+          schema: { type: string }
+        - name: area
+          in: query
+          description: Area slug, i.e. `area` lower-cased with non-alphanumerics collapsed to `-` (`Main Road` → `main-road`).
+          schema: { type: string }
+        - name: sort
+          in: query
+          schema: { $ref: '#/components/schemas/BusinessSort' }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: One page of active businesses.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Business' }
+              example:
+                items:
+                  - id: 1
+                    slug: demo-saffron-kitchen
+                    name: Demo Saffron Kitchen
+                    category: Food & Restaurants
+                    categoryId: 1
+                    categorySlug: food-restaurants
+                    categoryName: Food & Restaurants
+                    subcategoryId: 101
+                    subcategorySlug: restaurant
+                    subcategoryName: Restaurant
+                    shortDescription: Fictional restaurant listing for directory development.
+                    phone: '+910000000001'
+                    whatsapp: '+910000000001'
+                    email: demo-saffron@example.com
+                    website: https://example.com/demo-saffron-kitchen
+                    address: Demo address 1, Main Road
+                    area: Main Road
+                    landmark: Demo landmark
+                    latitude: 26.1
+                    longitude: 87.9
+                    imageUrl: ''
+                    coverImageUrl: https://placehold.co/1200x700?text=Demo+Cover
+                    services: [Family Dining, Takeaway]
+                    status: ACTIVE
+                    createdAt: '2026-09-02T09:00:00Z'
+                page: 1
+                pageSize: 100
+                totalItems: 1
+                totalPages: 1
+        '400': { $ref: '#/components/responses/ValidationError' }
+
+  /businesses/{id}:
+    get:
+      tags: [Businesses]
+      operationId: getBusiness
+      summary: Public business detail
+      description: |
+        Called by `/businesses/:id` (`BusinessRepository.loadBusiness`). Returns the full representation including
+        `description`, `images`, `hours`, `pinCode`. A `404` renders the "not found" state; any other error
+        renders the retry state.
+      x-frontend-status: in-use
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/BusinessId'
+      responses:
+        '200':
+          description: The business.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Business' }
+              examples:
+                business: { $ref: '#/components/examples/Business' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ───────────────────────── My Businesses ─────────────────────────
+  /my/businesses:
+    get:
+      tags: [My Businesses]
+      operationId: listMyBusinesses
+      summary: The signed-in owner's listings
+      description: |
+        Called lazily (`?pageSize=100`) by `/my/businesses` and `/my/businesses/:id/edit`. Include **inactive**
+        listings too. **Each item must include `ownerId`**: the edit page only opens the form when
+        `business.ownerId === currentUser.id`.
+      x-frontend-status: in-use
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: One page of the owner's businesses.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Business' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      tags: [My Businesses]
+      operationId: createMyBusiness
+      summary: Create a listing
+      description: |
+        Called by `/my/business/new` (`BusinessRepository.createBusiness`). The listing is **`ACTIVE` immediately**
+        (no approval workflow). The server generates `id`, `slug` (`{name-kebab}-{id}`), `shortDescription`
+        (first 160 chars of `description`), `ownerId`, `status`, `createdAt`, `updatedAt`.
+        After `201` the frontend reloads `/businesses` and `/my/businesses`, and links to `/businesses/{id}`.
+      x-frontend-status: in-use
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BusinessRequest' }
+            examples:
+              business: { $ref: '#/components/examples/BusinessRequest' }
+      responses:
+        '201':
+          description: Created.
+          headers:
+            Location:
+              schema: { type: string }
+              example: /api/v1/businesses/22
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Business' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /my/businesses/{id}:
+    get:
+      tags: [My Businesses]
+      operationId: getMyBusiness
+      summary: One owned listing (including inactive)
+      description: |
+        Not called yet (the edit page finds the listing in `GET /my/businesses`). Recommended so that the edit page
+        can load a single record. Return `404` for another owner's listing so its existence is not revealed.
+      x-frontend-status: planned
+      parameters:
+        - $ref: '#/components/parameters/BusinessId'
+      responses:
+        '200':
+          description: The listing.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Business' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [My Businesses]
+      operationId: updateMyBusiness
+      summary: Update a listing
+      description: |
+        Called by `/my/businesses/:id/edit`. **Full replacement of the editable fields**: an optional field omitted
+        from the body is cleared (the form omits empty values). Preserve `id`, `slug`, `ownerId`, `status`,
+        `createdAt`, and the image fields; set `updatedAt`; recompute `shortDescription` and the category/subcategory names.
+        The frontend maps `404` → "not found" and `403` → "you do not have permission".
+      x-frontend-status: in-use
+      parameters:
+        - $ref: '#/components/parameters/BusinessId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BusinessRequest' }
+            examples:
+              business: { $ref: '#/components/examples/BusinessRequest' }
+      responses:
+        '200':
+          description: Updated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Business' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /my/businesses/{id}/images:
+    post:
+      tags: [Media]
+      operationId: uploadBusinessImages
+      summary: Upload listing images
+      description: |
+        The media step of the business form accepts up to 8 JPEG/PNG/WebP images of at most 5 MiB each
+        (`BUSINESS_MEDIA_CONFIG`) but does not upload them yet. Call this after create/update succeeds,
+        then reload the listing. The first upload becomes `coverImageUrl`/`imageUrl` unless a cover is chosen.
+      x-frontend-status: planned
+      parameters:
+        - $ref: '#/components/parameters/BusinessId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [files]
+              properties:
+                files:
+                  type: array
+                  maxItems: 8
+                  items: { type: string, format: binary }
+                alts:
+                  type: array
+                  description: Alt text per file, same order as `files`.
+                  items: { type: string, maxLength: 150 }
+                coverIndex:
+                  type: integer
+                  minimum: 0
+                  description: Index in `files` to use as the cover image.
+            encoding:
+              files:
+                contentType: image/jpeg, image/png, image/webp
+      responses:
+        '200':
+          description: The listing with its updated `images`, `coverImageUrl` and `imageUrl`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Business' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '413':
+          description: A file exceeds 5 MiB or the gallery would exceed 8 images.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /my/businesses/{id}/images/{imageId}:
+    delete:
+      tags: [Media]
+      operationId: deleteBusinessImage
+      summary: Remove one listing image
+      x-frontend-status: planned
+      parameters:
+        - $ref: '#/components/parameters/BusinessId'
+        - name: imageId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Removed. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ───────────────────────────── Places ─────────────────────────────
+  /place-categories:
+    get:
+      tags: [Places]
+      operationId: listPlaceCategories
+      summary: Place category catalog
+      description: |
+        Called by `HttpPlaceRepository`. Used by the home "Explore town" tabs and the map category filter.
+        Slugs used by the UI: `landmarks`, `religious`, `markets`, `transportation`, `hospitals`, `schools`,
+        `parks`, `sports`, `other`.
+      x-frontend-status: in-use
+      security: []
+      responses:
+        '200':
+          description: All place categories, ordered by `displayOrder`.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/PlaceCategory' }
+              example:
+                items:
+                  - { id: place-category-landmarks, slug: landmarks, name: Landmarks, icon: ★, displayOrder: 1, active: true }
+                  - { id: place-category-transportation, slug: transportation, name: Transportation, icon: 🚉, displayOrder: 4, active: true }
+
+  /places:
+    get:
+      tags: [Places]
+      operationId: listPlaces
+      summary: Place directory
+      description: |
+        `HttpPlaceRepository` calls `GET /places?pageSize=100`. Feeds the home "Explore town" section and `/map`.
+        Return active places sorted by `displayOrder`, then `name`.
+      x-frontend-status: in-use
+      security: []
+      parameters:
+        - name: search
+          in: query
+          description: Substring over name, category name, short/full description, address, area, landmark.
+          schema: { type: string }
+        - name: category
+          in: query
+          description: Place category slug.
+          schema: { type: string }
+        - name: featured
+          in: query
+          schema: { type: boolean }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: One page of places.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Place' }
+              example:
+                items:
+                  - id: place-thakurganj-junction
+                    slug: thakurganj-junction
+                    name: Thakurganj Junction
+                    categoryId: place-category-transportation
+                    categorySlug: transportation
+                    categoryName: Transportation
+                    shortDescription: Railway station in Thakurganj.
+                    description: Railway station in Thakurganj.
+                    address: Thakurganj
+                    area: Thakurganj
+                    landmark: ''
+                    pinCode: ''
+                    latitude: null
+                    longitude: null
+                    coverImageUrl: null
+                    images: []
+                    featured: true
+                    active: true
+                    displayOrder: 1
+                page: 1
+                pageSize: 100
+                totalItems: 1
+                totalPages: 1
+
+  /places/{slug}:
+    get:
+      tags: [Places]
+      operationId: getPlace
+      summary: Place detail
+      description: |
+        For the future `/places/:slug` page (today `/places` and `/places/:slug` redirect to `/`, while place cards
+        and map results already link there).
+      x-frontend-status: planned
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+      responses:
+        '200':
+          description: The place, plus up to three related places.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Place'
+                  - type: object
+                    properties:
+                      relatedPlaces:
+                        type: array
+                        maxItems: 3
+                        items: { $ref: '#/components/schemas/Place' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ────────────────────────────── Map ──────────────────────────────
+  /map/items:
+    get:
+      tags: [Map]
+      operationId: listMapItems
+      summary: Combined map markers
+      description: |
+        Not called yet: `/map` builds markers on the client from `/businesses` + `/places`
+        (`map-item.utils.ts#buildMapItems`). Recommended when the directories grow past 100 records.
+
+        Return the **unpaginated** union of active businesses and active places with valid coordinates
+        (latitude in [-90, 90] and longitude in [-180, 180]). `key` must be `business-{id}` / `place-{id}`.
+      x-frontend-status: planned
+      security: []
+      parameters:
+        - name: type
+          in: query
+          schema: { type: string, enum: [all, business, place], default: all }
+        - name: category
+          in: query
+          description: Plain slug when `type` is `business` or `place`; `business:{slug}` or `place:{slug}` when `type=all`.
+          schema: { type: string }
+          example: business:food-restaurants
+        - name: search
+          in: query
+          description: Substring over name, categoryName, area, shortDescription.
+          schema: { type: string }
+      responses:
+        '200':
+          description: All matching markers.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/MapItem' }
+              example:
+                items:
+                  - key: business-1
+                    entityType: business
+                    id: 1
+                    slug: demo-saffron-kitchen
+                    name: Demo Saffron Kitchen
+                    categoryId: 1
+                    categorySlug: food-restaurants
+                    categoryName: Food & Restaurants
+                    latitude: 26.1
+                    longitude: 87.9
+                    area: Main Road
+                    shortDescription: Fictional restaurant listing for directory development.
+                    imageUrl: https://placehold.co/1200x700?text=Demo+Cover
+
+  # ─────────────────────────── Community ───────────────────────────
+  /home/stats:
+    get:
+      tags: [Community]
+      operationId: getHomeStats
+      summary: Home page counters
+      description: 'Replaces the hard-coded `HOME_STATISTICS` (`businessCount: 245, placeCount: 54`).'
+      x-frontend-status: planned
+      security: []
+      responses:
+        '200':
+          description: Counts of active records.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HomeStatistics' }
+
+  /events:
+    get:
+      tags: [Community]
+      operationId: listEvents
+      summary: Upcoming events
+      description: For `/events` (placeholder) and the home "Happening in town" cards (static `HOME_EVENTS`). Event cards link to `/events/{id}`.
+      x-frontend-status: planned
+      security: []
+      parameters:
+        - name: from
+          in: query
+          description: Only events on or after this date. Defaults to today.
+          schema: { type: string, format: date }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Events ordered by date ascending.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Event' }
+
+  /events/{id}:
+    get:
+      tags: [Community]
+      operationId: getEvent
+      summary: Event detail
+      x-frontend-status: planned
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: The event.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Event' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /announcements:
+    get:
+      tags: [Community]
+      operationId: listAnnouncements
+      summary: Community announcements
+      description: |
+        For `/announcements` (placeholder; linked from the header) and the black NOTICE bar
+        (`AnnouncementBarComponent`, currently one hard-coded welcome item). Use `?active=true&limit=5` for the bar.
+      x-frontend-status: planned
+      security: []
+      parameters:
+        - name: active
+          in: query
+          description: Only announcements whose publish window includes now.
+          schema: { type: boolean }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 20 }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Announcements, newest first.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedResponse'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: '#/components/schemas/Announcement' }
+
+  /announcements/{id}:
+    get:
+      tags: [Community]
+      operationId: getAnnouncement
+      summary: Announcement detail
+      x-frontend-status: planned
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: The announcement.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Announcement' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /emergency-contacts:
+    get:
+      tags: [Community]
+      operationId: listEmergencyContacts
+      summary: Emergency phone numbers
+      description: For `/emergency` (placeholder) and the home emergency card (static `HOME_EMERGENCY_CONTACTS`, currently "Coming soon").
+      x-frontend-status: planned
+      security: []
+      responses:
+        '200':
+          description: Contacts ordered by `displayOrder`.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/EmergencyContact' }
+              example:
+                items:
+                  - { name: Police, phone: '112', displayOrder: 1 }
+                  - { name: Ambulance, phone: '108', displayOrder: 2 }
+                  - { name: Fire, phone: '101', displayOrder: 3 }
+
+  # ──────────────────────────── Reports ────────────────────────────
+  /reports:
+    post:
+      tags: [Reports]
+      operationId: createReport
+      summary: Report a listing or content issue
+      description: |
+        `/legal/report` currently builds a `mailto:` link from issue type, page/listing URL and details.
+        This endpoint lets the form submit directly. Anonymous submissions are allowed; rate-limit by IP.
+      x-frontend-status: planned
+      security: [{}, { bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReportRequest' }
+      responses:
+        '202': { description: Report received. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '429':
+          description: Too many reports from this client.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: '`Authorization: Bearer <accessToken>` from `/auth/login` or `/auth/register`.'
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: 1-based page number.
+      schema: { type: integer, minimum: 1, default: 1 }
+    PageSize:
+      name: pageSize
+      in: query
+      description: Items per page. The frontend currently sends 100.
+      schema: { type: integer, minimum: 1, maximum: 100, default: 12 }
+    BusinessId:
+      name: id
+      in: path
+      required: true
+      description: Numeric business id (the public URL is `/businesses/{id}`).
+      schema: { type: integer, format: int64, minimum: 1 }
+    Slug:
+      name: slug
+      in: path
+      required: true
+      schema: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$' }
+
+  responses:
+    ValidationError:
+      description: Malformed request or field validation failure.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example:
+            type: about:blank
+            title: Validation failed
+            status: 400
+            detail: One or more fields are invalid.
+            code: VALIDATION_ERROR
+            fieldErrors:
+              - { field: phone, code: INVALID_FORMAT, message: 'Please enter a valid phone number, for example +91 98765 43210.' }
+    Unauthorized:
+      description: Missing or expired authentication.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: about:blank, title: Unauthorized, status: 401, code: UNAUTHENTICATED }
+    Forbidden:
+      description: Signed in, but the listing belongs to someone else.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: about:blank, title: Forbidden, status: 403, code: FORBIDDEN, detail: You do not have permission to manage this listing. }
+    NotFound:
+      description: Unknown, inactive (on public routes), or not visible to this user.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: about:blank, title: Not Found, status: 404, code: NOT_FOUND }
+
+  schemas:
+    # ── envelopes ──
+    PagedResponse:
+      type: object
+      description: '`PagedResponse<T>` in `core/api/api-responses.ts`.'
+      required: [items, page, pageSize, totalItems, totalPages]
+      properties:
+        items: { type: array, items: {} }
+        page: { type: integer, example: 1 }
+        pageSize: { type: integer, example: 100 }
+        totalItems: { type: integer, description: 'All matches, not just this page.' }
+        totalPages: { type: integer }
+
+    Problem:
+      type: object
+      description: RFC 9457 problem details (Spring `ProblemDetail`) plus `code` and `fieldErrors`.
+      required: [type, title, status]
+      properties:
+        type: { type: string, example: about:blank }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+        code: { type: string, description: Stable machine-readable code. }
+        traceId: { type: string, description: Correlation id for logs (returned with 500s). }
+        fieldErrors:
+          type: array
+          items:
+            type: object
+            required: [field, code, message]
+            properties:
+              field: { type: string, description: 'Request property path, e.g. `hours[2].openTime`.' }
+              code: { type: string, example: INVALID_FORMAT }
+              message: { type: string }
+
+    # ── auth ──
+    RegisterRequest:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        email: { type: string, format: email, maxLength: 254 }
+        phone: { type: string, pattern: '^\+?[0-9\s()-]{7,20}$' }
+        password: { type: string, format: password, minLength: 8, maxLength: 128 }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, format: password }
+    User:
+      type: object
+      required: [id, name, email, role]
+      properties:
+        id: { type: integer, format: int64, example: 1 }
+        name: { type: string, example: Demo Owner }
+        email: { type: string, format: email, example: owner@example.com }
+        role: { type: string, enum: [USER, ADMIN], example: USER }
+    AuthResponse:
+      type: object
+      required: [accessToken, tokenType, expiresIn, user]
+      properties:
+        accessToken: { type: string }
+        tokenType: { type: string, enum: [Bearer] }
+        expiresIn: { type: integer, description: 'Seconds until the token expires.', example: 3600 }
+        user: { $ref: '#/components/schemas/User' }
+
+    # ── categories ──
+    CategoryVisualVariant:
+      type: string
+      enum: [dark, yellow, magenta, cream, light]
+    BusinessSubcategory:
+      type: object
+      required: [id, slug, categoryId, name, displayOrder, active]
+      properties:
+        id: { type: integer, example: 101 }
+        slug: { type: string, example: restaurant }
+        categoryId: { type: integer, example: 1 }
+        name: { type: string, example: Restaurant }
+        description: { type: string }
+        displayOrder: { type: integer }
+        active: { type: boolean }
+        businessCount: { type: integer, description: Optional; the UI counts from `/businesses` today. }
+    BusinessCategory:
+      type: object
+      required: [id, slug, name, displayOrder, active, subcategories]
+      properties:
+        id: { type: integer, example: 1, description: Database id. URLs use `slug`. }
+        slug: { type: string, example: food-restaurants }
+        name: { type: string, example: Food & Restaurants }
+        hindiName: { type: string, example: खान-पान }
+        description: { type: string }
+        icon: { type: string, description: 'Lucide icon name, e.g. `utensils`.' }
+        visualVariant: { $ref: '#/components/schemas/CategoryVisualVariant' }
+        displayOrder: { type: integer }
+        active: { type: boolean }
+        businessCount: { type: integer, description: Optional; the UI counts from `/businesses` today. }
+        subcategories:
+          type: array
+          items: { $ref: '#/components/schemas/BusinessSubcategory' }
+
+    # ── businesses ──
+    BusinessStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE]
+    BusinessSort:
+      type: string
+      enum: [name-asc, name-desc, newest]
+      default: name-asc
+    BusinessDay:
+      type: string
+      enum: [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
+    BusinessDayHours:
+      type: object
+      description: Closed days have no times; open days have both.
+      required: [day, closed]
+      properties:
+        day: { $ref: '#/components/schemas/BusinessDay' }
+        openTime: { type: string, pattern: '^([01]\d|2[0-3]):[0-5]\d$', example: '09:00' }
+        closeTime: { type: string, pattern: '^([01]\d|2[0-3]):[0-5]\d$', example: '20:00' }
+        closed: { type: boolean }
+    BusinessImage:
+      type: object
+      required: [url, alt]
+      properties:
+        id: { type: string, description: Needed by the image delete endpoint. }
+        url: { type: string, format: uri }
+        alt: { type: string }
+    Business:
+      type: object
+      description: |
+        `Business` in `business.models.ts`. List responses may omit the detail-only fields
+        (`description`, `images`, `hours`); every other required field must be present.
+      required:
+        - id
+        - slug
+        - name
+        - category
+        - categoryId
+        - categorySlug
+        - categoryName
+        - shortDescription
+        - phone
+        - whatsapp
+        - email
+        - website
+        - address
+        - area
+        - landmark
+        - imageUrl
+        - services
+        - status
+        - createdAt
+      properties:
+        id: { type: integer, format: int64, example: 1 }
+        slug: { type: string, example: demo-saffron-kitchen }
+        name: { type: string, maxLength: 150 }
+        category: { type: string, description: Category display name (same as `categoryName`; used by cards). }
+        categoryId: { type: integer }
+        categorySlug: { type: string }
+        categoryName: { type: string }
+        subcategoryId: { type: integer }
+        subcategorySlug: { type: string }
+        subcategoryName: { type: string }
+        shortDescription: { type: string, maxLength: 160, description: 'Server-derived: first 160 characters of `description`, or "".' }
+        description: { type: string, maxLength: 1000 }
+        phone: { type: string, description: '"" when absent.' }
+        whatsapp: { type: string, description: '"" when absent.' }
+        email: { type: string, description: '"" when absent.' }
+        website: { type: string, description: '"" when absent.' }
+        address: { type: string, description: '"" when absent.' }
+        area: { type: string }
+        landmark: { type: string, description: '"" when absent.' }
+        pinCode: { type: string, pattern: '^[0-9]{6}$' }
+        latitude: { type: number, format: double, minimum: -90, maximum: 90 }
+        longitude: { type: number, format: double, minimum: -180, maximum: 180 }
+        imageUrl: { type: string, description: 'Card image URL; "" when none (the UI draws placeholder artwork).' }
+        logoUrl: { type: string }
+        coverImageUrl: { type: string }
+        images:
+          type: array
+          items: { $ref: '#/components/schemas/BusinessImage' }
+        services:
+          type: array
+          maxItems: 30
+          items: { type: string, maxLength: 80 }
+        hours:
+          type: array
+          maxItems: 7
+          items: { $ref: '#/components/schemas/BusinessDayHours' }
+        status: { $ref: '#/components/schemas/BusinessStatus' }
+        ownerId: { type: integer, format: int64, description: '**Required in `/my/businesses` responses.** May be omitted on public endpoints.' }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    BusinessRequest:
+      type: object
+      description: |
+        `CreateBusinessRequest` / `UpdateBusinessRequest`, built by `business-form.mapper.ts`. Empty optional values
+        are omitted. `categoryId` and `categorySlug` (and the subcategory pair) are both sent and must refer to the
+        same active record. `phone` and `area` are required by the form but typed optional, so validate them on the server.
+      required: [name, categoryId, categorySlug, phone, area]
+      additionalProperties: false
+      properties:
+        name: { type: string, minLength: 1, maxLength: 150 }
+        categoryId: { type: integer }
+        categorySlug: { type: string }
+        subcategoryId: { type: integer }
+        subcategorySlug: { type: string }
+        description: { type: string, maxLength: 1000 }
+        phone: { type: string, pattern: '^\+?[0-9\s()-]{7,20}$' }
+        whatsapp: { type: string, pattern: '^\+?[0-9\s()-]{7,20}$' }
+        email: { type: string, format: email, maxLength: 254 }
+        website: { type: string, format: uri, maxLength: 300, description: Absolute http(s) URL. }
+        address: { type: string, maxLength: 300 }
+        area: { type: string, minLength: 1, maxLength: 100 }
+        landmark: { type: string, maxLength: 150 }
+        pinCode: { type: string, pattern: '^[0-9]{6}$' }
+        latitude: { type: number, format: double, minimum: -90, maximum: 90 }
+        longitude: { type: number, format: double, minimum: -180, maximum: 180 }
+        services:
+          type: array
+          maxItems: 30
+          items: { type: string, minLength: 1, maxLength: 80 }
+        hours:
+          type: array
+          maxItems: 7
+          description: At most one entry per day. Open entries need both times.
+          items: { $ref: '#/components/schemas/BusinessDayHours' }
+
+    # ── places ──
+    PlaceCategory:
+      type: object
+      required: [id, slug, name, icon, displayOrder, active]
+      properties:
+        id: { type: string, example: place-category-landmarks }
+        slug: { type: string, example: landmarks }
+        name: { type: string, example: Landmarks }
+        icon: { type: string, example: ★, description: An emoji/glyph. }
+        displayOrder: { type: integer }
+        active: { type: boolean }
+    Place:
+      type: object
+      description: '`Place` in `place.models.ts`. Note that the id is a **string**.'
+      required:
+        - id
+        - slug
+        - name
+        - categoryId
+        - categorySlug
+        - categoryName
+        - shortDescription
+        - description
+        - address
+        - area
+        - landmark
+        - pinCode
+        - latitude
+        - longitude
+        - coverImageUrl
+        - images
+        - featured
+        - active
+        - displayOrder
+      properties:
+        id: { type: string, example: place-thakurganj-junction }
+        slug: { type: string, example: thakurganj-junction }
+        name: { type: string }
+        categoryId: { type: string }
+        categorySlug: { type: string }
+        categoryName: { type: string }
+        shortDescription: { type: string }
+        description: { type: string }
+        address: { type: string }
+        area: { type: string }
+        landmark: { type: string, description: '"" when absent.' }
+        pinCode: { type: string, description: '"" when absent.' }
+        latitude: { type: number, format: double, nullable: true }
+        longitude: { type: number, format: double, nullable: true }
+        coverImageUrl: { type: string, nullable: true }
+        images:
+          type: array
+          description: Image URLs (plain strings, unlike business images).
+          items: { type: string, format: uri }
+        featured: { type: boolean }
+        active: { type: boolean }
+        displayOrder: { type: integer }
+
+    # ── map ──
+    MapItem:
+      type: object
+      required: [key, entityType, id, slug, name, categoryId, categorySlug, categoryName, latitude, longitude, area, shortDescription, imageUrl]
+      properties:
+        key: { type: string, example: business-1, description: '`{entityType}-{id}`; used to keep the selection.' }
+        entityType: { type: string, enum: [business, place] }
+        id:
+          oneOf: [{ type: integer }, { type: string }]
+          description: Business ids are numbers; place ids are strings.
+        slug: { type: string }
+        name: { type: string }
+        categoryId:
+          oneOf: [{ type: integer }, { type: string }]
+        categorySlug: { type: string }
+        categoryName: { type: string }
+        latitude: { type: number, format: double }
+        longitude: { type: number, format: double }
+        area: { type: string }
+        shortDescription: { type: string }
+        imageUrl: { type: string, description: 'Business: `coverImageUrl || imageUrl`; place: `coverImageUrl`; "" when none.' }
+
+    # ── community ──
+    HomeStatistics:
+      type: object
+      required: [businessCount, placeCount]
+      properties:
+        businessCount: { type: integer, example: 245 }
+        placeCount: { type: integer, example: 54 }
+    Event:
+      type: object
+      description: '`EventCardData`.'
+      required: [id, title, date, venue]
+      properties:
+        id: { type: integer, format: int64 }
+        title: { type: string, example: Community event }
+        date: { type: string, format: date, example: '2026-10-15' }
+        venue: { type: string, example: Club Field }
+        description: { type: string }
+        imageUrl: { type: string }
+    Announcement:
+      type: object
+      description: '`AnnouncementBarItem` plus detail fields.'
+      required: [id, title]
+      properties:
+        id: { type: integer, format: int64 }
+        title: { type: string, example: Welcome to Thakurganj Connect }
+        hindiTitle: { type: string, example: अपने शहर की अपनी जानकारी }
+        date: { type: string, format: date }
+        link: { type: string, description: 'Where the notice bar links to, typically `/announcements/{id}`.' }
+        body: { type: string, description: Detail page only. }
+    EmergencyContact:
+      type: object
+      required: [name, phone]
+      properties:
+        name: { type: string, example: Police }
+        phone: { type: string, example: '112' }
+        displayOrder: { type: integer }
+
+    # ── reports ──
+    ReportRequest:
+      type: object
+      required: [issueType, details]
+      properties:
+        issueType:
+          type: string
+          description: Matches the issue-type choices on `/legal/report`.
+          example: Incorrect information
+        pageUrl: { type: string, maxLength: 500, description: Page or listing the report is about. }
+        details: { type: string, minLength: 10, maxLength: 2000 }
+        email: { type: string, format: email, description: Optional reply address. }
+
+  examples:
+    Business:
+      summary: Full business (detail response)
+      value:
+        id: 1
+        slug: demo-saffron-kitchen
+        name: Demo Saffron Kitchen
+        category: Food & Restaurants
+        categoryId: 1
+        categorySlug: food-restaurants
+        categoryName: Food & Restaurants
+        subcategoryId: 101
+        subcategorySlug: restaurant
+        subcategoryName: Restaurant
+        shortDescription: Fictional restaurant listing for directory development.
+        description: Demo Saffron Kitchen is a fictional restaurant used only to develop and test the business profile page.
+        phone: '+910000000001'
+        whatsapp: '+910000000001'
+        email: demo-saffron@example.com
+        website: https://example.com/demo-saffron-kitchen
+        address: Demo address 1, Main Road
+        area: Main Road
+        landmark: Demo landmark
+        pinCode: '000001'
+        latitude: 26.1
+        longitude: 87.9
+        imageUrl: ''
+        coverImageUrl: https://placehold.co/1200x700?text=Demo+Cover
+        images:
+          - { url: 'https://placehold.co/1200x700?text=Demo+Cover', alt: Demo Saffron Kitchen demo cover image }
+        services: [Family Dining, Takeaway, Snacks, Tea]
+        hours:
+          - { day: monday, openTime: '09:00', closeTime: '20:00', closed: false }
+          - { day: sunday, closed: true }
+        status: ACTIVE
+        ownerId: 1
+        createdAt: '2026-09-02T09:00:00Z'
+        updatedAt: '2026-09-02T09:00:00Z'
+    BusinessRequest:
+      summary: Create/update body as sent by the business form
+      value:
+        name: Demo Chai Corner
+        categoryId: 1
+        categorySlug: food-restaurants
+        subcategoryId: 101
+        subcategorySlug: restaurant
+        description: Tea, snacks and takeaway.
+        phone: '+91 98765 43210'
+        whatsapp: '+91 98765 43210'
+        email: hello@example.com
+        website: https://example.com
+        address: 12 Main Road
+        area: Main Road
+        landmark: Near the market
+        pinCode: '855116'
+        latitude: 26.1
+        longitude: 87.9
+        services: [Tea, Snacks]
+        hours:
+          - { day: monday, openTime: '09:00', closeTime: '20:00', closed: false }
+          - { day: sunday, closed: true }
+    Place:
+      summary: Place
+      value:
+        id: place-thakurganj-junction
+        slug: thakurganj-junction
+        name: Thakurganj Junction
+        categoryId: place-category-transportation
+        categorySlug: transportation
+        categoryName: Transportation
+        shortDescription: Railway station in Thakurganj.
+        description: Railway station in Thakurganj.
+        address: Thakurganj
+        area: Thakurganj
+        landmark: ''
+        pinCode: ''
+        latitude: null
+        longitude: null
+        coverImageUrl: null
+        images: []
+        featured: true
+        active: true
+        displayOrder: 1
