@@ -8,6 +8,9 @@ import { Component, input } from '@angular/core';
       <p class="eyebrow">Thakurganj Connect</p>
       <h1 id="page-title">{{ title() }}</h1>
       <p class="description">{{ description() }}</p>
+      @if (notice()) {
+        <p class="notice" role="status">🚧 {{ notice() }}</p>
+      }
     </section>
   `,
   styles: `
@@ -42,9 +45,22 @@ import { Component, input } from '@angular/core';
       font-size: 1.125rem;
       line-height: 1.6;
     }
+
+    .notice {
+      max-width: 42rem;
+      margin: 1.5rem 0 0;
+      padding: 1rem 1.25rem;
+      border: 1px solid #f0c36d;
+      border-radius: 8px;
+      background: #fff8e6;
+      color: #6b4a00;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
   `,
 })
 export class PagePlaceholderComponent {
   readonly title = input('Thakurganj Connect');
   readonly description = input('Local information for Thakurganj, Bihar.');
+  readonly notice = input<string>();
 }

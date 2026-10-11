@@ -4,7 +4,7 @@ import { PublicLayoutComponent } from './layout/public-layout/public-layout.comp
 import { UserLayoutComponent } from './layout/user-layout/user-layout.component';
 import { unsavedChangesGuard } from './features/businesses/guards/unsaved-changes.guard';
 
-function page(path: string, title: string, description: string) {
+function page(path: string, title: string, description: string, notice?: string) {
   return {
     path,
     loadComponent: () =>
@@ -12,7 +12,7 @@ function page(path: string, title: string, description: string) {
         (component) => component.PagePlaceholderComponent,
       ),
     title,
-    data: { title, description },
+    data: { title, description, ...(notice ? { notice } : {}) },
   };
 }
 
@@ -64,7 +64,12 @@ export const routes: Routes = [
       },
       page('events', 'Events', 'See what is happening in Thakurganj.'),
       page('events/:id', 'Event details', 'Event information for the Thakurganj community.'),
-      page('announcements', 'Announcements', 'Community notices and local announcements.'),
+      page(
+        'announcements',
+        'Announcements',
+        'This page will show events and programs happening, or coming up, in the Thakurganj area.',
+        'This page is in development. Announcements will be shared here once it is connected to the admin panel.',
+      ),
       page('announcements/:id', 'Announcement details', 'Read the full announcement.'),
       {
         path: 'about',

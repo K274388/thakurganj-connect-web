@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal, signal } from '@angular/core';
+import {
+  afterRenderEffect,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  linkedSignal,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideX } from '@lucide/angular';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -29,6 +39,7 @@ const EMPTY_RESULTS: PagedResponse<Business> = { items: [], page: 1, pageSize: P
 export class BusinessDirectoryComponent {
   private readonly businessRepository = inject(BusinessRepository);
   private readonly categoryRepository = inject(CategoryRepository);
+  private readonly categoryList = viewChild<ElementRef<HTMLElement>>('categoryList');
 
   readonly allCategories = linkedSignal(() => this.categoryRepository.categories());
   readonly categories = computed(() => getActiveCategories(this.allCategories()));
@@ -47,6 +58,8 @@ export class BusinessDirectoryComponent {
   readonly selectedCategoryData = computed(() =>
     this.categories().find((category) => category.slug === this.selectedCategory()),
   );
+  /** A selected category switches the page to a focused view: compact header, subcategories and results. */
+  readonly focused = computed(() => !!this.selectedCategoryData());
   readonly filterOptions = computed(() => ({
     subcategories: getActiveSubcategories(this.selectedCategoryData()),
   }));
@@ -72,6 +85,18 @@ export class BusinessDirectoryComponent {
       name: 'description',
       content: 'Find shops, restaurants, healthcare, services and local businesses in Thakurganj.',
     });
+    // In the focused view the categories collapse into a scrolling strip; keep the active one in sight.
+    afterRenderEffect({
+      write: () => {
+        this.selectedCategory();
+        const list = this.categoryList()?.nativeElement;
+        const active = this.focused() ? list?.querySelector<HTMLElement>('.cat.active') : null;
+        if (!list || !active) return;
+        const offset = active.getBoundingClientRect().left - list.getBoundingClientRect().left + list.scrollLeft;
+        list.scrollLeft = offset - (list.clientWidth - active.offsetWidth) / 2;
+      },
+    });
+
     const filters$ = this.route.queryParamMap.pipe(
       map((params) => ({
         search: params.get('search')?.trim() ?? '',
@@ -141,13 +166,16 @@ export class BusinessDirectoryComponent {
     this.applySearch(search, true);
   }
 
+  // The fragments below bring that section into view via the router's anchor scrolling
+  // (otherwise each query change would restore the page to the top).
+
   protected toggleCategory(category: string): void {
-    void this.updateQuery({
-      category: this.selectedCategory() === category ? null : category,
-      subcategory: null,
-      search: null,
-      page: null,
-    });
+    const selecting = this.selectedCategory() !== category;
+    void this.updateQuery(
+      { category: selecting ? category : null, subcategory: null, search: null, page: null },
+      false,
+      selecting ? 'subcategories' : undefined,
+    );
   }
 
   protected clearCategory(): void {
@@ -155,16 +183,16 @@ export class BusinessDirectoryComponent {
   }
 
   protected setSubcategory(subcategory: string): void {
-    void this.updateQuery({ subcategory: subcategory || null, page: null });
+    void this.updateQuery({ subcategory: subcategory || null, page: null }, false, 'business-section');
   }
 
   protected setSort(sort: BusinessSort): void {
-    void this.updateQuery({ sort: sort === DEFAULT_SORT ? null : sort, page: null });
+    void this.updateQuery({ sort: sort === DEFAULT_SORT ? null : sort, page: null }, false, 'business-section');
   }
 
   protected setPage(page: number): void {
     const validPage = Math.min(Math.max(1, Math.floor(page)), this.totalPages());
-    void this.updateQuery({ page: validPage === 1 ? null : validPage });
+    void this.updateQuery({ page: validPage === 1 ? null : validPage }, false, 'business-section');
   }
 
   protected resetAll(): void {
@@ -208,12 +236,14 @@ export class BusinessDirectoryComponent {
   private async updateQuery(
     params: Record<string, string | number | null>,
     replaceUrl = false,
+    fragment?: string,
   ): Promise<void> {
     await this.router.navigate([], {
       relativeTo: this.route,
       queryParams: params,
       queryParamsHandling: 'merge',
       replaceUrl,
+      fragment,
     });
   }
 

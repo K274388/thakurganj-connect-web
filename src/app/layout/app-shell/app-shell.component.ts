@@ -1,4 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
+import { formatDate } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { AnnouncementBarComponent } from '../announcement-bar/announcement-bar.component';
 import { FooterComponent, FooterLink } from '../footer/footer.component';
@@ -11,6 +12,7 @@ const WELCOME_NOTICE: AnnouncementBarItem = {
   id: 'welcome',
   title: 'Welcome to Thakurganj Connect',
   hindiTitle: 'अपने शहर की अपनी जानकारी',
+  date: formatDate(new Date(), 'yyyy-MM-dd', 'en-US'),
 };
 
 @Component({
@@ -33,8 +35,11 @@ const WELCOME_NOTICE: AnnouncementBarItem = {
 })
 export class AppShellComponent {
   private readonly activeAnnouncements = inject(AnnouncementRepository).active;
+  // For now every notice shows today's date instead of the backend's.
   protected readonly announcements = computed(() =>
-    this.activeAnnouncements().length ? this.activeAnnouncements() : [WELCOME_NOTICE],
+    this.activeAnnouncements().length
+      ? this.activeAnnouncements().map((item) => ({ ...item, date: WELCOME_NOTICE.date }))
+      : [WELCOME_NOTICE],
   );
   readonly footerText = input('Local information, shared by our community.');
   readonly footerLinks = input<FooterLink[]>([

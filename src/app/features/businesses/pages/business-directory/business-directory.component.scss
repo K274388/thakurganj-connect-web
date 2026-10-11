@@ -280,6 +280,94 @@ a {
   background: var(--green);
   color: #fff;
 }
+/* Focused view: a category is selected, so the page centres on its subcategories and results. */
+.hero.compact {
+  padding: 18px 0 20px;
+}
+.hero.compact h1 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  font-size: clamp(24px, 3.2vw, 34px);
+}
+.hero.compact p {
+  margin: 0 0 14px;
+}
+.title-icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: #fff;
+  font-size: 25px;
+}
+.title-hindi {
+  color: var(--green);
+  font-size: 0.55em;
+}
+.crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 700;
+  font-size: 13px;
+}
+.crumbs li + li::before {
+  content: "› ";
+}
+.crumbs button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--green);
+}
+.section.focused {
+  padding-top: 16px;
+}
+.section.focused h2 {
+  color: var(--muted);
+  font-size: 15px;
+}
+.compact.category-grid {
+  display: flex;
+  padding: 2px 2px 8px;
+  overflow-x: auto;
+}
+.compact .cat {
+  flex: none;
+  flex-direction: row;
+  align-items: center;
+  min-height: 0;
+  padding: 6px 14px 6px 6px;
+  border-radius: 999px;
+}
+.compact .cat .emoji {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 17px;
+}
+.compact .cat strong {
+  white-space: nowrap;
+}
+.compact .cat .hindi,
+.compact .cat small,
+.compact .cat.active::after {
+  display: none;
+}
+.compact .cat.active {
+  background: var(--green);
+  color: #fff;
+}
+.subpanel,
+#business-section {
+  scroll-margin-top: 12px;
+}
 @keyframes subpanel-in {
   from {
     opacity: 0;

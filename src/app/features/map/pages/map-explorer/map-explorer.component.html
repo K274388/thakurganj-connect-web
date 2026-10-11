@@ -46,7 +46,7 @@
 
     <div class="split">
       <div class="map-area">
-        <tk-map-view [items]="items()" [selectedKey]="selectedKey()" (markerSelected)="selectFromMap($event)" (itemOpened)="openItem($event)" />
+        <tk-map-view [items]="items()" [selectedKey]="selectedKey()" [fitToResults]="focusResults()" (markerSelected)="selectFromMap($event)" (itemOpened)="openItem($event)" />
       </div>
 
       <section class="results" [attr.data-sheet]="sheetState()" aria-labelledby="results-heading">

@@ -31,6 +31,8 @@ import { createMarkerElement, createPopupContent, setMarkerSelected } from './ma
 export class MapViewComponent {
   readonly items = input<MapItem[]>([]);
   readonly selectedKey = input<string | null>(null);
+  /** When false the map stays on the town centre instead of zooming to the results. */
+  readonly fitToResults = input(true);
   readonly markerSelected = output<string>();
   readonly itemOpened = output<MapItem>();
 
@@ -148,7 +150,7 @@ export class MapViewComponent {
     const map = this.map;
     const lib = this.lib;
     if (!map || !lib) return;
-    if (items.length === 0) {
+    if (items.length === 0 || !this.fitToResults()) {
       const { fallbackCenter, fallbackZoom } = this.config;
       map.jumpTo({ center: [fallbackCenter.longitude, fallbackCenter.latitude], zoom: fallbackZoom });
     } else if (items.length === 1) {

@@ -89,6 +89,8 @@ export class MapExplorerComponent {
     const { business, place } = this.counts();
     return `${business} ${business === 1 ? 'business' : 'businesses'} � ${place} ${place === 1 ? 'place' : 'places'}`;
   });
+  /** Default view is Thakurganj; zoom to the results only once the user picks a category or searches. */
+  protected readonly focusResults = computed(() => !!this.filters().category || !!this.filters().search);
   protected readonly showBusinessCategories = computed(() => this.filters().type !== 'place');
   protected readonly showPlaceCategories = computed(() => this.filters().type !== 'business');
 

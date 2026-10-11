@@ -65,6 +65,23 @@ describe('BusinessDirectoryComponent', () => {
     expect(router.url).not.toContain('category=');
   });
 
+  it('a selected category switches to the focused view', async () => {
+    expect(page().querySelector('.hero.compact')).toBeNull();
+    expect(page().querySelector('.category-grid.compact')).toBeNull();
+
+    await navigate('/businesses?category=food-restaurants');
+    expect(page().querySelector('.hero.compact')).not.toBeNull();
+    expect(page().querySelector('h1')?.textContent).toContain('Food & Restaurants');
+    expect(page().querySelector('.crumbs [aria-current="page"]')?.textContent).toContain('Food & Restaurants');
+    expect(page().querySelector('.category-grid.compact .cat.active')).not.toBeNull();
+    expect(page().querySelector('#subcategories')).not.toBeNull();
+
+    page().querySelector<HTMLButtonElement>('.crumbs button')!.click();
+    await settle();
+    expect(router.url).not.toContain('category=');
+    expect(page().querySelector('.hero.compact')).toBeNull();
+  });
+
   it('selecting a subcategory updates the query', async () => {
     await navigate('/businesses?category=food-restaurants');
     page().querySelectorAll<HTMLButtonElement>('.sub')[1].click();

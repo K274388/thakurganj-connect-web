@@ -79,6 +79,15 @@ describe('MapViewComponent', () => {
     expect(FakeMap.instances[0].jumpTo).toHaveBeenCalled();
   });
 
+  it('stays on the town centre instead of fitting results when fitToResults is false', async () => {
+    const fixture = create();
+    fixture.componentRef.setInput('fitToResults', false);
+    await flush(fixture);
+    const map = FakeMap.instances[0];
+    expect(map.fitBounds).not.toHaveBeenCalled();
+    expect(map.jumpTo).toHaveBeenCalledWith(expect.objectContaining({ center: map.options['center'] }));
+  });
+
   it('emits marker selection and opens a popup with a real link for the selected item', async () => {
     const fixture = create();
     const selected: string[] = [];

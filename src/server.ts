@@ -6,6 +6,9 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
+import { apiServerOrigin } from './server/api-origin';
+import { API_PROXY_PATHS, createApiProxy } from './server/api-proxy';
+import { isClientAbort } from './server/client-abort';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
@@ -32,6 +35,11 @@ const angularApp = new AngularNodeAppEngine({
  */
 
 /**
+ * Same-origin API: `/api/v1` and `/media` are forwarded to the Spring Boot API (see api-proxy.ts).
+ */
+app.use(API_PROXY_PATHS, createApiProxy(apiServerOrigin()));
+
+/**
  * Serve static files from /browser
  */
 app.use(
@@ -51,7 +59,15 @@ app.use((req, res, next) => {
     .then((response) =>
       response ? writeResponseToNodeResponse(response, res) : next(),
     )
-    .catch(next);
+    .catch((error: unknown) => {
+      // The client disconnected mid-render (navigation, refresh, cancelled prefetch, tunnel closed the connection).
+      // There is no one to respond to, so this is logged briefly instead of reported as a server error.
+      if (isClientAbort(error, req, res)) {
+        console.info(`SSR request cancelled by the client: ${req.method} ${req.originalUrl}`);
+        return;
+      }
+      next(error);
+    });
 });
 
 /**

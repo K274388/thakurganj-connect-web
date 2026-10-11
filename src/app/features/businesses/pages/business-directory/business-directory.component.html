@@ -1,11 +1,35 @@
-<section class="hero" aria-labelledby="directory-title">
+<section class="hero" [class.compact]="focused()" aria-labelledby="directory-title">
   <div class="wrap">
-    <div class="eyebrow">THAKURGANJ BUSINESS DIRECTORY · अपने शहर की अपनी जानकारी</div>
-    <h1 id="directory-title">What are you looking for?</h1>
-    <p>
-      Find shops, food, doctors and services in Thakurganj.<br />दुकान, डॉक्टर या कोई सेवा — यहाँ
-      आसानी से खोजें।
-    </p>
+    @if (selectedCategoryData(); as category) {
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <ol>
+          <li><button type="button" (click)="clearCategory()">← All categories</button></li>
+          @if (selectedSubcategory()) {
+            <li>
+              <button type="button" (click)="setSubcategory('')">{{ category.name }}</button>
+            </li>
+            <li aria-current="page">{{ subcategoryLabel() }}</li>
+          } @else {
+            <li aria-current="page">{{ category.name }}</li>
+          }
+        </ol>
+      </nav>
+      <h1 id="directory-title">
+        <span class="title-icon" aria-hidden="true">{{ categoryIcon(category.name) }}</span>
+        <span>{{ category.name }}</span>
+        @if (category.hindiName) {
+          <span class="title-hindi" lang="hi">{{ category.hindiName }}</span>
+        }
+      </h1>
+      <p>Pick a subcategory below to narrow down, or browse everything in {{ category.name }}.</p>
+    } @else {
+      <div class="eyebrow">THAKURGANJ BUSINESS DIRECTORY · अपने शहर की अपनी जानकारी</div>
+      <h1 id="directory-title">What are you looking for?</h1>
+      <p>
+        Find shops, food, doctors and services in Thakurganj.<br />दुकान, डॉक्टर या कोई सेवा — यहाँ
+        आसानी से खोजें।
+      </p>
+    }
     <form class="search" role="search" (submit)="onSearchSubmit($event, query.value)">
       <label class="sr" for="query">Search businesses</label>
       <input
@@ -19,20 +43,29 @@
       />
       <button class="btn" type="submit">🔍 Search Businesses</button>
     </form>
-    <div class="hint">Or simply tap a category below — no typing needed.</div>
+    @if (!focused()) {
+      <div class="hint">Or simply tap a category below — no typing needed.</div>
+    }
   </div>
 </section>
 
 <div class="wrap">
-  <section class="section" id="browse" aria-labelledby="category-browser-title">
+  <section
+    class="section"
+    [class.focused]="focused()"
+    id="browse"
+    aria-labelledby="category-browser-title"
+  >
     <div class="category-bar">
       <div>
-        <h2 id="category-browser-title">Browse by category</h2>
-        <p class="intro">Tap what you need / अपनी जरूरत चुनें</p>
+        <h2 id="category-browser-title">{{ focused() ? 'Switch category' : 'Browse by category' }}</h2>
+        @if (!focused()) {
+          <p class="intro">Tap what you need / अपनी जरूरत चुनें</p>
+        }
       </div>
       <button class="linkbtn" type="button" (click)="resetAll()">Show all businesses ↗</button>
     </div>
-    <div class="category-grid">
+    <div #categoryList class="category-grid" [class.compact]="focused()">
       @for (category of categories(); track category.slug) {
         <button
           type="button"
@@ -51,7 +84,7 @@
       }
     </div>
     @if (selectedCategoryData(); as category) {
-      <div class="subpanel" role="group" aria-labelledby="subcategory-title">
+      <div class="subpanel" id="subcategories" role="group" aria-labelledby="subcategory-title">
         <div class="subpanel-head">
           <h3 id="subcategory-title">{{ category.name }} · Choose a subcategory</h3>
           <button class="clear" type="button" (click)="clearCategory()">
