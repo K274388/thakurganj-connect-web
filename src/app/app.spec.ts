@@ -4,12 +4,16 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { App } from './app';
 import { routes } from './app.routes';
 import { PublicLayoutComponent } from './layout/public-layout/public-layout.component';
+import { provideFakeRepositories } from './core/testing/fake-repositories';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter(routes, withComponentInputBinding())],
+      providers: [
+        ...provideFakeRepositories(),
+        provideRouter(routes, withComponentInputBinding()),
+      ],
     })
       .compileComponents();
   });

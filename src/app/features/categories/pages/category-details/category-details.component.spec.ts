@@ -1,12 +1,12 @@
+import { TEST_BUSINESSES, TEST_CATEGORIES } from '../../../../core/testing/fixtures';
 import { Component } from '@angular/core';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { TestBed } from '@angular/core/testing';
 import { Meta, Title } from '@angular/platform-browser';
-import { MOCK_BUSINESSES } from '../../../businesses/data/business.mock';
 import { Business } from '../../../businesses/models/business.models';
-import { BUSINESS_CATEGORIES } from '../../data/category.mock';
 import { CategoryDetailsComponent } from './category-details.component';
+import { provideFakeRepositories } from '../../../../core/testing/fake-repositories';
 
 @Component({ standalone: true, template: '<p>Destination</p>' })
 class TestDestinationComponent {}
@@ -19,6 +19,7 @@ describe('CategoryDetailsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [CategoryDetailsComponent],
       providers: [
+        ...provideFakeRepositories(),
         provideRouter([
           { path: 'categories/:slug', component: CategoryDetailsComponent },
           { path: '**', component: TestDestinationComponent },
@@ -68,7 +69,7 @@ describe('CategoryDetailsComponent', () => {
   it('hides inactive subcategories and honors subcategory displayOrder', async () => {
     const page = await open('food-restaurants');
     component.allCategories.set(
-      BUSINESS_CATEGORIES.map((category) =>
+      TEST_CATEGORIES.map((category) =>
         category.slug !== 'food-restaurants'
           ? category
           : {
@@ -102,8 +103,8 @@ describe('CategoryDetailsComponent', () => {
 
   it('limits the preview to six businesses', async () => {
     const page = await open('food-restaurants');
-    const extra = Array.from({ length: 5 }, (_, index) => ({ ...MOCK_BUSINESSES[0], id: 200 + index })) as Business[];
-    component.businesses.set([...MOCK_BUSINESSES, ...extra]);
+    const extra = Array.from({ length: 5 }, (_, index) => ({ ...TEST_BUSINESSES[0], id: 200 + index })) as Business[];
+    component.businesses.set([...TEST_BUSINESSES, ...extra]);
     harness.detectChanges();
     expect(page.querySelectorAll('tk-business-card').length).toBe(6);
   });
@@ -138,7 +139,7 @@ describe('CategoryDetailsComponent', () => {
   it('treats an inactive category as unavailable without exposing its content', async () => {
     const page = await open('shopping');
     component.allCategories.set(
-      BUSINESS_CATEGORIES.map((category) => (category.slug === 'shopping' ? { ...category, active: false } : category)),
+      TEST_CATEGORIES.map((category) => (category.slug === 'shopping' ? { ...category, active: false } : category)),
     );
     harness.detectChanges();
     expect(text(page)).toContain('Category unavailable');

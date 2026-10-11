@@ -3,6 +3,7 @@ import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { TestBed } from '@angular/core/testing';
 import { BusinessDirectoryComponent } from './business-directory.component';
+import { provideFakeRepositories } from '../../../../core/testing/fake-repositories';
 
 @Component({ standalone: true, template: '<p>Destination</p>' })
 class TestDestinationComponent {}
@@ -15,6 +16,7 @@ describe('BusinessDirectoryComponent', () => {
     await TestBed.configureTestingModule({
       imports: [BusinessDirectoryComponent],
       providers: [
+        ...provideFakeRepositories(),
         provideRouter([
           { path: 'businesses', component: BusinessDirectoryComponent },
           { path: 'businesses/:id', component: TestDestinationComponent },

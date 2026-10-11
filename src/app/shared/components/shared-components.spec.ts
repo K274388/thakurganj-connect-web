@@ -3,7 +3,6 @@ import { provideRouter } from '@angular/router';
 import { BusinessCardComponent } from './business-card/business-card.component';
 import { CategoryCardComponent } from './category-card/category-card.component';
 import { EmptyStateComponent } from './empty-state/empty-state.component';
-import { EmergencyCardComponent } from './emergency-card/emergency-card.component';
 import { ErrorStateComponent } from './error-state/error-state.component';
 import { EventCardComponent } from './event-card/event-card.component';
 import { FilterPillComponent } from './filter-pill/filter-pill.component';
@@ -27,7 +26,6 @@ describe('shared UI components', () => {
         PlaceCardComponent,
         ImagePlaceholderComponent,
         EventCardComponent,
-        EmergencyCardComponent,
         FilterPillComponent,
         ToastComponent,
         ModalComponent,
@@ -150,13 +148,6 @@ describe('shared UI components', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Community Event');
     expect(fixture.nativeElement.textContent).toContain('Club Field');
-  });
-
-  it('renders emergency contacts as telephone links', () => {
-    const fixture = TestBed.createComponent(EmergencyCardComponent);
-    fixture.componentRef.setInput('contacts', [{ name: 'Police', phone: '100' }]);
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('a[href="tel:100"]').textContent).toBe('100');
   });
 
   it('emits when a filter pill is selected', () => {

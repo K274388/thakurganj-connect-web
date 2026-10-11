@@ -64,6 +64,12 @@ export interface BusinessDirectoryFilters {
   sort: BusinessSort;
 }
 
+/** Query parameters of `GET /businesses`; empty values are omitted from the request. */
+export interface BusinessListQuery extends Partial<BusinessDirectoryFilters> {
+  page?: number;
+  pageSize?: number;
+}
+
 /** Input for creating a business. Backend-owned values (id, status, ownerId, timestamps) are added by the repository. */
 export interface CreateBusinessRequest {
   name: string;

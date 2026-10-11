@@ -1,6 +1,5 @@
-import { MOCK_BUSINESSES } from '../../businesses/data/business.mock';
+import { TEST_BUSINESSES, TEST_CATEGORIES } from '../../../core/testing/fixtures';
 import { Business } from '../../businesses/models/business.models';
-import { BUSINESS_CATEGORIES } from '../data/category.mock';
 import { BusinessCategory } from '../models/category.models';
 import {
   findCategoryBySlug,
@@ -45,18 +44,18 @@ describe('category utilities', () => {
   });
 
   it('counts only ACTIVE businesses', () => {
-    const food = BUSINESS_CATEGORIES[0];
-    const shopping = BUSINESS_CATEGORIES[1];
-    expect(getBusinessCountForCategory(food.id, MOCK_BUSINESSES)).toBe(4);
-    expect(getBusinessCountForCategory(shopping.id, MOCK_BUSINESSES)).toBe(4);
-    expect(getBusinessCountForCategory(7, MOCK_BUSINESSES)).toBe(0);
+    const food = TEST_CATEGORIES[0];
+    const shopping = TEST_CATEGORIES[1];
+    expect(getBusinessCountForCategory(food.id, TEST_BUSINESSES)).toBe(4);
+    expect(getBusinessCountForCategory(shopping.id, TEST_BUSINESSES)).toBe(4);
+    expect(getBusinessCountForCategory(7, TEST_BUSINESSES)).toBe(0);
     const mobile = shopping.subcategories.find((item) => item.slug === 'mobile')!;
-    expect(getBusinessCountForSubcategory(mobile.id, MOCK_BUSINESSES)).toBe(1);
+    expect(getBusinessCountForSubcategory(mobile.id, TEST_BUSINESSES)).toBe(1);
   });
 
   it('limits and filters category businesses', () => {
     const many = Array.from({ length: 9 }, (_, index) => ({
-      ...MOCK_BUSINESSES[0],
+      ...TEST_BUSINESSES[0],
       id: 100 + index,
       status: index === 0 ? 'INACTIVE' : 'ACTIVE',
     })) as Business[];
@@ -71,16 +70,16 @@ describe('category utilities', () => {
   });
 
   it('maps category data to a card using visual variant from data', () => {
-    const card = toCategoryCard({ ...BUSINESS_CATEGORIES[2] }, 3);
+    const card = toCategoryCard({ ...TEST_CATEGORIES[2] }, 3);
     expect(card.slug).toBe('health');
     expect(card.colorVariant).toBe('magenta');
     expect(card.businessCount).toBe(3);
   });
 
   it('defines eight V1 categories with unique ids and slugs', () => {
-    expect(BUSINESS_CATEGORIES.length).toBe(8);
-    expect(new Set(BUSINESS_CATEGORIES.map((item) => item.slug)).size).toBe(8);
-    const subIds = BUSINESS_CATEGORIES.flatMap((item) => item.subcategories.map((sub) => sub.id));
+    expect(TEST_CATEGORIES.length).toBe(8);
+    expect(new Set(TEST_CATEGORIES.map((item) => item.slug)).size).toBe(8);
+    const subIds = TEST_CATEGORIES.flatMap((item) => item.subcategories.map((sub) => sub.id));
     expect(new Set(subIds).size).toBe(subIds.length);
   });
 });

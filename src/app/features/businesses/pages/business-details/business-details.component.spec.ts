@@ -1,12 +1,13 @@
+import { TEST_BUSINESSES } from '../../../../core/testing/fixtures';
 import { Component } from '@angular/core';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { TestBed } from '@angular/core/testing';
 import { Meta, Title } from '@angular/platform-browser';
-import { MOCK_BUSINESSES } from '../../data/business.mock';
 import { Business } from '../../models/business.models';
 import { directionsLink, safeWebsite, whatsappLink } from '../../utils/business-links';
 import { BusinessDetailsComponent } from './business-details.component';
+import { provideFakeRepositories } from '../../../../core/testing/fake-repositories';
 
 @Component({ standalone: true, template: '<p>Destination</p>' })
 class TestDestinationComponent {}
@@ -18,6 +19,7 @@ describe('BusinessDetailsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [BusinessDetailsComponent],
       providers: [
+        ...provideFakeRepositories(),
         provideRouter([
           { path: 'businesses/:id', component: BusinessDetailsComponent },
           { path: 'businesses', component: TestDestinationComponent },
@@ -100,7 +102,7 @@ describe('BusinessDetailsComponent', () => {
 
   it('omits directions when neither coordinates nor address exist', () => {
     const base = {
-      ...MOCK_BUSINESSES[0],
+      ...TEST_BUSINESSES[0],
       latitude: undefined,
       longitude: undefined,
       address: '',

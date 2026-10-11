@@ -1,4 +1,5 @@
-﻿import { Component } from '@angular/core';
+import { TEST_CATEGORIES } from '../../../../core/testing/fixtures';
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By, Meta } from '@angular/platform-browser';
 import { Router, provideRouter } from '@angular/router';
@@ -12,7 +13,7 @@ import { BusinessRepository } from '../../data/business.repository';
 import { unsavedChangesGuard } from '../../guards/unsaved-changes.guard';
 import { BusinessDirectoryComponent } from '../business-directory/business-directory.component';
 import { AddBusinessComponent } from './add-business.component';
-import { BUSINESS_CATEGORIES } from '../../../categories/data/category.mock';
+import { provideFakeRepositories } from '../../../../core/testing/fake-repositories';
 
 @Component({ standalone: true, template: '<p>Destination</p>' })
 class TestDestinationComponent {}
@@ -24,6 +25,7 @@ describe('AddBusinessComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [
+        ...provideFakeRepositories(),
         provideRouter([
           {
             path: 'my/business/new',
@@ -163,7 +165,7 @@ describe('AddBusinessComponent', () => {
       .map((option) => option.value)
       .filter(Boolean);
     expect(values).toEqual(
-      BUSINESS_CATEGORIES.filter((item) => item.active).map((item) => item.slug),
+      TEST_CATEGORIES.filter((item) => item.active).map((item) => item.slug),
     );
   });
 
@@ -172,7 +174,7 @@ describe('AddBusinessComponent', () => {
     fixture.componentRef.setInput('group', form().controls.basicInfo);
     fixture.componentRef.setInput(
       'categories',
-      BUSINESS_CATEGORIES.map((item, index) => (index === 0 ? { ...item, active: false } : item)),
+      TEST_CATEGORIES.map((item, index) => (index === 0 ? { ...item, active: false } : item)),
     );
     fixture.detectChanges();
     const values = [
@@ -180,7 +182,7 @@ describe('AddBusinessComponent', () => {
         '#bf-category option',
       ),
     ].map((option) => option.value);
-    expect(values).not.toContain(BUSINESS_CATEGORIES[0].slug);
+    expect(values).not.toContain(TEST_CATEGORIES[0].slug);
   });
 
   it('derives subcategories from the category and clears them on change', () => {
@@ -194,7 +196,7 @@ describe('AddBusinessComponent', () => {
     expect(values).toContain('mobile');
     fill('bf-subcategory', 'mobile');
     expect(form().controls.basicInfo.controls.subcategory.value).toBe('mobile');
-    const other = BUSINESS_CATEGORIES.find((item) => item.slug !== 'shopping' && item.active)!;
+    const other = TEST_CATEGORIES.find((item) => item.slug !== 'shopping' && item.active)!;
     fill('bf-category', other.slug);
     expect(form().controls.basicInfo.controls.subcategory.value).toBe('');
     expect(

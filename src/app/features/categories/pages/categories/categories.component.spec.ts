@@ -1,10 +1,11 @@
+import { TEST_CATEGORIES } from '../../../../core/testing/fixtures';
 import { Component } from '@angular/core';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { TestBed } from '@angular/core/testing';
 import { Meta } from '@angular/platform-browser';
-import { BUSINESS_CATEGORIES } from '../../data/category.mock';
 import { CategoriesComponent } from './categories.component';
+import { provideFakeRepositories } from '../../../../core/testing/fake-repositories';
 
 @Component({ standalone: true, template: '<p>Destination</p>' })
 class TestDestinationComponent {}
@@ -17,6 +18,7 @@ describe('CategoriesComponent', () => {
     await TestBed.configureTestingModule({
       imports: [CategoriesComponent],
       providers: [
+        ...provideFakeRepositories(),
         provideRouter([
           { path: 'categories', component: CategoriesComponent },
           { path: '**', component: TestDestinationComponent },
@@ -47,7 +49,7 @@ describe('CategoriesComponent', () => {
 
   it('hides inactive categories and respects displayOrder changes', () => {
     component.allCategories.set(
-      BUSINESS_CATEGORIES.map((item) =>
+      TEST_CATEGORIES.map((item) =>
         item.slug === 'health' ? { ...item, active: false } : item.slug === 'finance' ? { ...item, displayOrder: 0 } : item,
       ),
     );

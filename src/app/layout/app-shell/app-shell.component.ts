@@ -1,9 +1,17 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AnnouncementBarComponent } from '../announcement-bar/announcement-bar.component';
 import { FooterComponent, FooterLink } from '../footer/footer.component';
 import { HeaderComponent } from '../header/header.component';
 import { AnnouncementBarItem } from '../../shared/models/announcement-bar-item';
+import { AnnouncementRepository } from '../../features/announcements/data/announcement.repository';
+
+/** Shown in the notice bar while no announcement is active. */
+const WELCOME_NOTICE: AnnouncementBarItem = {
+  id: 'welcome',
+  title: 'Welcome to Thakurganj Connect',
+  hindiTitle: 'अपने शहर की अपनी जानकारी',
+};
 
 @Component({
   selector: 'app-shell',
@@ -24,9 +32,10 @@ import { AnnouncementBarItem } from '../../shared/models/announcement-bar-item';
   `,
 })
 export class AppShellComponent {
-  readonly announcements = input<AnnouncementBarItem[]>([
-    { id: 'welcome', title: 'Welcome to Thakurganj Connect', hindiTitle: 'अपने शहर की अपनी जानकारी' },
-  ]);
+  private readonly activeAnnouncements = inject(AnnouncementRepository).active;
+  protected readonly announcements = computed(() =>
+    this.activeAnnouncements().length ? this.activeAnnouncements() : [WELCOME_NOTICE],
+  );
   readonly footerText = input('Local information, shared by our community.');
   readonly footerLinks = input<FooterLink[]>([
     { label: 'About', href: '/about' },

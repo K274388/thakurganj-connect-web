@@ -104,9 +104,15 @@
       </select>
     </div>
 
-    @if (resultCount() === 0) {
+    @if (loading() && resultCount() === 0) {
+      <div class="empty" role="status">Loading businesses…</div>
+    } @else if (loadFailed()) {
+      <div class="empty" role="alert">
+        Could not load businesses right now.<br />Please check your connection and try again.
+      </div>
+    } @else if (resultCount() === 0) {
       <div class="empty">
-        @if (businesses().length === 0) {
+        @if (!hasFilters()) {
           No businesses listed yet.<br />Own a local business?
           <a class="empty-link" routerLink="/my/business/new">List your business</a>
         } @else {
@@ -115,7 +121,7 @@
         }
       </div>
     } @else {
-      <div class="results">
+      <div class="results" [attr.aria-busy]="loading()">
         @for (business of pagedBusinesses(); track business.id) {
           <article class="business">
             <div class="avatar" aria-hidden="true">{{ businessIcon(business) }}</div>

@@ -1,7 +1,6 @@
 export * from './button/tc-button.component';
 export * from './business-card/business-card.component';
 export * from './category-card/category-card.component';
-export * from './emergency-card/emergency-card.component';
 export * from './empty-state/empty-state.component';
 export * from './error-state/error-state.component';
 export * from './event-card/event-card.component';

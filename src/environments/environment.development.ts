@@ -1,7 +1,5 @@
 export const environment = {
   production: false,
-  /** 'mock' serves the bundled JSON demo data; 'http' calls the Spring Boot API at apiBaseUrl. */
-  dataSource: 'mock' as 'mock' | 'http',
   apiBaseUrl: 'http://localhost:8080/api/v1',
   map: {
     tileUrls: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],

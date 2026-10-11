@@ -1,7 +1,6 @@
 export const environment = {
   production: true,
-  /** 'mock' serves the bundled JSON demo data; 'http' calls the Spring Boot API at apiBaseUrl. */
-  dataSource: 'mock' as 'mock' | 'http',
+  /** Must be absolute: pages are server-rendered and HttpClient on the Node server cannot resolve relative URLs. */
   apiBaseUrl: '',
   map: {
     tileUrls: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],

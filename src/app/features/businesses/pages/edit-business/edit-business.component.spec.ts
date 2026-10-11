@@ -1,4 +1,5 @@
-﻿import { Component } from '@angular/core';
+import { TEST_CATEGORIES } from '../../../../core/testing/fixtures';
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By, Meta } from '@angular/platform-browser';
 import { Router, provideRouter } from '@angular/router';
@@ -6,19 +7,18 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { emitted } from '../../../../core/testing/emitted';
-import { BUSINESS_CATEGORIES } from '../../../categories/data/category.mock';
 import { BusinessFormComponent } from '../../components/business-form/business-form.component';
 import { BUSINESS_UPDATE_SUCCESS_MESSAGE } from '../../components/business-form/business-form.config';
-import { BusinessAccessError, BusinessRepository } from '../../data/business.repository';
 import { unsavedChangesGuard } from '../../guards/unsaved-changes.guard';
 import { Business, CreateBusinessRequest } from '../../models/business.models';
 import { BusinessDirectoryComponent } from '../business-directory/business-directory.component';
 import { EditBusinessComponent } from './edit-business.component';
+import { FakeBusinessRepository, provideFakeRepositories } from '../../../../core/testing/fake-repositories';
 
 @Component({ standalone: true, template: '<p>Destination</p>' })
 class TestDestinationComponent {}
 
-const shopping = BUSINESS_CATEGORIES.find((item) => item.slug === 'shopping')!;
+const shopping = TEST_CATEGORIES.find((item) => item.slug === 'shopping')!;
 const mobile = shopping.subcategories.find((item) => item.slug === 'mobile')!;
 
 const REQUEST: CreateBusinessRequest = {
@@ -48,12 +48,13 @@ const REQUEST: CreateBusinessRequest = {
 describe('EditBusinessComponent', () => {
   let harness: RouterTestingHarness;
   let page: HTMLElement;
-  let repository: BusinessRepository;
+  let repository: FakeBusinessRepository;
   let owned: Business;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       providers: [
+        ...provideFakeRepositories(),
         provideRouter([
           { path: 'my/businesses/:id/edit', component: EditBusinessComponent, canDeactivate: [unsavedChangesGuard] },
           { path: 'my/businesses', component: TestDestinationComponent },
@@ -62,7 +63,7 @@ describe('EditBusinessComponent', () => {
         ]),
       ],
     }).compileComponents();
-    repository = TestBed.inject(BusinessRepository);
+    repository = TestBed.inject(FakeBusinessRepository);
     owned = emitted(repository.createBusiness(REQUEST));
     harness = await RouterTestingHarness.create();
   });
@@ -147,7 +148,7 @@ describe('EditBusinessComponent', () => {
     });
 
     it('clears an incompatible subcategory when the category changes later', () => {
-      const other = BUSINESS_CATEGORIES.find((item) => item.slug !== 'shopping' && item.active)!;
+      const other = TEST_CATEGORIES.find((item) => item.slug !== 'shopping' && item.active)!;
       fill('bf-category', other.slug);
       expect(form().controls.basicInfo.controls.subcategory.value).toBe('');
     });
@@ -288,7 +289,7 @@ describe('EditBusinessComponent', () => {
       fill('bf-description', 'Updated description');
       submit();
       await settle();
-      const updated = repository.getBusiness(21)!;
+      const updated = repository.findStored(21)!;
       expect(updated.description).toBe('Updated description');
       expect(updated.status).toBe('INACTIVE');
       expect(page.querySelector('.success-message')).not.toBeNull();
@@ -316,38 +317,3 @@ describe('EditBusinessComponent', () => {
     });
   });
 });
-
-describe('BusinessRepository.updateBusiness', () => {
-  let repository: BusinessRepository;
-  beforeEach(() => {
-    repository = TestBed.inject(BusinessRepository);
-  });
-
-  it('rejects an update from a non-owner and leaves the business unchanged', () => {
-    const foreign = repository.getBusinesses().find((item) => item.ownerId !== 1)!;
-    const before = { ...foreign };
-    expect(() => emitted(repository.updateBusiness(foreign.id, 1, { ...REQUEST, name: 'Hijacked' }))).toThrow(BusinessAccessError);
-    expect(repository.getBusiness(foreign.id)).toEqual(before);
-  });
-
-  it('reports unknown ids as not found', () => {
-    try {
-      emitted(repository.updateBusiness(999999, 1, REQUEST));
-      expect.unreachable();
-    } catch (error) {
-      expect((error as BusinessAccessError).code).toBe('NOT_FOUND');
-    }
-  });
-
-  it('ignores protected fields smuggled into the request and preserves status', () => {
-    const inactive = repository.getBusiness(21)!;
-    const tainted = { ...REQUEST, status: 'ACTIVE', ownerId: 2, id: 77, createdAt: 'x' } as CreateBusinessRequest;
-    const updated = emitted(repository.updateBusiness(21, 1, tainted));
-    expect(updated.status).toBe('INACTIVE');
-    expect(updated.ownerId).toBe(1);
-    expect(updated.id).toBe(inactive.id);
-    expect(updated.createdAt).toBe(inactive.createdAt);
-    expect(repository.getBusinesses().filter((item) => item.id === 21).length).toBe(1);
-  });
-});
-

@@ -3,8 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { Meta } from '@angular/platform-browser';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { MockCurrentUserService } from '../../../../core/auth/mock-current-user';
 import { MyBusinessesComponent } from './my-businesses.component';
+import { FakeBusinessRepository, provideFakeRepositories } from '../../../../core/testing/fake-repositories';
 
 @Component({ standalone: true, template: '<p>Destination</p>' })
 class TestDestinationComponent {}
@@ -16,6 +16,7 @@ describe('MyBusinessesComponent', () => {
     await TestBed.configureTestingModule({
       imports: [MyBusinessesComponent],
       providers: [
+        ...provideFakeRepositories(),
         provideRouter([
           { path: 'my/businesses', component: MyBusinessesComponent },
           { path: '**', component: TestDestinationComponent },
@@ -72,12 +73,11 @@ describe('MyBusinessesComponent', () => {
     const page = await open();
     page.querySelector<HTMLAnchorElement>('.card a[href="/businesses/1"]')!.click();
     await harness.fixture.whenStable();
-    expect(TestBed.inject(MockCurrentUserService)).toBeTruthy();
     expect(location.pathname).toBeDefined();
   });
 
   it('shows the empty state when the user owns no businesses', async () => {
-    TestBed.inject(MockCurrentUserService).user.set({ id: 999, name: 'New user' });
+    TestBed.inject(FakeBusinessRepository).ownerId.set(999);
     const page = await open();
     expect(page.querySelectorAll('.card').length).toBe(0);
     expect(page.textContent).toContain('No businesses yet.');

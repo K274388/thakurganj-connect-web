@@ -1,13 +1,15 @@
+import { TEST_PLACE_CATEGORIES } from '../../../../core/testing/fixtures';
 import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Meta } from '@angular/platform-browser';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { FakeCategoryRepository } from '../../../../core/testing/fake-repositories';
 import { BusinessRepository } from '../../../businesses/data/business.repository';
 import { Business } from '../../../businesses/models/business.models';
+import { CategoryRepository } from '../../../categories/data/category.repository';
 import { PlaceRepository } from '../../../places/data/place.repository';
-import { PLACE_CATEGORIES } from '../../../places/data/place-category.mock';
 import { Place } from '../../../places/models/place.models';
 import { MAP_LIBRARY_LOADER } from '../../components/map-view/map-library';
 import { FakeMarker, fakeLibrary } from '../../testing/map-fakes';
@@ -43,7 +45,8 @@ describe('MapExplorerComponent', () => {
         { provide: PLATFORM_ID, useValue: platform },
         { provide: MAP_LIBRARY_LOADER, useValue: async () => fakeLibrary() },
         { provide: BusinessRepository, useValue: { businesses } },
-        { provide: PlaceRepository, useValue: { places, categories: signal(PLACE_CATEGORIES) } },
+        { provide: CategoryRepository, useClass: FakeCategoryRepository },
+        { provide: PlaceRepository, useValue: { places, categories: signal(TEST_PLACE_CATEGORIES) } },
       ],
     });
     harness = await RouterTestingHarness.create();
@@ -232,7 +235,8 @@ describe('MapExplorerComponent', () => {
         provideRouter([{ path: 'map', component: MapExplorerComponent }]),
         { provide: MAP_LIBRARY_LOADER, useValue: async () => { throw new Error('fail'); } },
         { provide: BusinessRepository, useValue: { businesses } },
-        { provide: PlaceRepository, useValue: { places, categories: signal(PLACE_CATEGORIES) } },
+        { provide: CategoryRepository, useClass: FakeCategoryRepository },
+        { provide: PlaceRepository, useValue: { places, categories: signal(TEST_PLACE_CATEGORIES) } },
       ],
     });
     harness = await RouterTestingHarness.create();
@@ -251,7 +255,8 @@ describe('MapExplorerComponent', () => {
         { provide: PLATFORM_ID, useValue: 'server' },
         { provide: MAP_LIBRARY_LOADER, useValue: loader },
         { provide: BusinessRepository, useValue: { businesses } },
-        { provide: PlaceRepository, useValue: { places, categories: signal(PLACE_CATEGORIES) } },
+        { provide: CategoryRepository, useClass: FakeCategoryRepository },
+        { provide: PlaceRepository, useValue: { places, categories: signal(TEST_PLACE_CATEGORIES) } },
       ],
     });
     harness = await RouterTestingHarness.create();

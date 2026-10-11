@@ -2,7 +2,6 @@
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
-import { MockCurrentUserService } from '../../../../core/auth/mock-current-user';
 import { markPageAsPrivate } from '../../../../core/seo/private-page';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { BusinessFormComponent, BusinessSaveState } from '../../components/business-form/business-form.component';
@@ -21,7 +20,6 @@ import { Business, UpdateBusinessRequest } from '../../models/business.models';
 })
 export class EditBusinessComponent implements HasUnsavedChanges {
   private readonly repository = inject(BusinessRepository);
-  private readonly currentUser = inject(MockCurrentUserService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly owned = this.repository.ownerBusinesses();
@@ -36,16 +34,18 @@ export class EditBusinessComponent implements HasUnsavedChanges {
   readonly saveState = signal<BusinessSaveState>('idle');
   readonly confirmOpen = signal(false);
 
+  private readonly ownedBusiness = computed(() => this.owned().find((item) => String(item.id) === this.id()));
   /** Own listings (including inactive ones) first, then public ones so another owner's listing reads as forbidden. */
-  readonly business = computed(() => {
-    const matches = (item: Business) => String(item.id) === this.id();
-    return this.owned().find(matches) ?? this.repository.businesses().find(matches);
-  });
-  /** The edit form is only ever rendered in the 'ready' state. */
+  readonly business = computed(
+    () => this.ownedBusiness() ?? this.repository.businesses().find((item: Business) => String(item.id) === this.id()),
+  );
+  /**
+   * The edit form is only ever rendered in the 'ready' state. `/my/businesses` only returns the signed-in owner's
+   * listings, so being in that list is the ownership check; the server enforces it again on save.
+   */
   readonly access = computed<'not-found' | 'forbidden' | 'ready'>(() => {
-    const business = this.business();
-    if (!business) return 'not-found';
-    return business.ownerId === this.currentUser.user().id ? 'ready' : 'forbidden';
+    if (this.ownedBusiness()) return 'ready';
+    return this.business() ? 'forbidden' : 'not-found';
   });
 
   constructor() {
@@ -68,7 +68,7 @@ export class EditBusinessComponent implements HasUnsavedChanges {
     if (this.saveState() === 'saving' || !business || this.access() !== 'ready') return;
     this.saveState.set('saving');
     this.repository
-      .updateBusiness(business.id, this.currentUser.user().id, request)
+      .updateBusiness(business.id, request)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

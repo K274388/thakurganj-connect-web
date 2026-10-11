@@ -27,6 +27,9 @@ export const API_ENDPOINTS = {
   map: {
     items: '/map/items',
   },
+  announcements: {
+    list: '/announcements',
+  },
   auth: {
     login: '/auth/login',
     register: '/auth/register',
